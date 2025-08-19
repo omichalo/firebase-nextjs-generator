@@ -99,13 +99,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Check package size
-        run: |
-          npm pack
-          PACKAGE_SIZE=$(du -h firebase-nextjs-generator-*.tgz | cut -f1)
-          echo "Package size: $PACKAGE_SIZE"
-          rm -f firebase-nextjs-generator-*.tgz
-
       - name: Publish to npm
         run: npm publish
         env:

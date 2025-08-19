@@ -1,0 +1,18 @@
+# Configuration npm pour Firebase Next.js Generator
+registry=https://registry.npmjs.org/
+access=public
+package-lock=true
+save-exact=false
+
+# Configuration pour la publication
+publishConfig.access=public
+publishConfig.registry=https://registry.npmjs.org/
+
+# Configuration pour les tests
+test-script=test
+test-ignore=test-*, .test-*, test-output-*
+
+# Configuration pour le build
+build-script=build
+prepublishOnly=build
+prepare=build 

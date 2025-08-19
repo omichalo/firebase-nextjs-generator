@@ -99,47 +99,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Check package size
-        run: |
-          npm pack
-          PACKAGE_SIZE=$(du -h firebase-nextjs-generator-*.tgz | cut -f1)
-          echo "Package size: $PACKAGE_SIZE"
-          rm -f firebase-nextjs-generator-*.tgz
-
       - name: Publish to npm
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            ## 🚀 Firebase Next.js Generator v${{ github.ref_name }} (Beta)
-
-            ### ✨ Nouveautés
-            - Génération de projets Firebase + Next.js avec App Hosting
-            - Support complet des API routes
-            - 132 tests automatisés
-            - Configuration optimisée Next.js 15
-
-            ### 📦 Installation
-            ```bash
-            npm install -g firebase-nextjs-generator
-            ```
-
-            ### 🎯 Utilisation
-            ```bash
-            firebase-nextjs-generator create --name "mon-projet" --yes
-            ```
-
-            ### 🔗 Liens
-            - [Documentation](https://github.com/${{ github.repository }}/blob/main/README.md)
-            - [Guide de démarrage](https://github.com/${{ github.repository }}/blob/main/docs/QUICK_START.md)
-            - [Issues](https://github.com/${{ github.repository }}/blob/main/issues)
-          draft: false
-          prerelease: false
