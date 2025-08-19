@@ -1,6 +1,6 @@
 {
   "name": "firebase-nextjs-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "🚀 Générateur complet pour projets Firebase + Next.js avec App Hosting, API routes, PWA, et plus !",
   "main": "dist/index.js",
   "bin": {
@@ -88,4 +88,4 @@
     "README.md",
     "LICENSE"
   ]
-} 
+}
