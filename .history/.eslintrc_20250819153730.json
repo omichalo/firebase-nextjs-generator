@@ -1,0 +1,18 @@
+{
+  "extends": ["eslint:recommended", "@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/prefer-const": "error",
+    "prefer-arrow-callback": "error",
+    "no-var": "error",
+    "no-console": "warn"
+  },
+  "ignorePatterns": ["dist/", "node_modules/", "output/", "test-output/"]
+}

@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure npm
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+          npm config set registry https://registry.npmjs.org/
+
+      - name: Build project
+        run: npm run build
+
+      - name: Check package size
+        run: |
+          npm pack
+          PACKAGE_SIZE=$(du -h firebase-nextjs-generator-*.tgz | cut -f1)
+          echo "Package size: $PACKAGE_SIZE"
+          rm -f firebase-nextjs-generator-*.tgz
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

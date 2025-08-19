@@ -1,0 +1,146 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Test generation
+        run: |
+          mkdir -p test-output
+          node dist/cli.js create --name test-project --yes --output test-output
+
+      - name: Verify generated structure
+        run: |
+          test -d test-output/frontend
+          test -d test-output/backend
+          test -f test-output/frontend/package.json
+          test -f test-output/backend/firebase.json
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, integration-test]
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Check package size
+        run: |
+          npm pack
+          PACKAGE_SIZE=$(du -h firebase-nextjs-generator-*.tgz | cut -f1)
+          echo "Package size: $PACKAGE_SIZE"
+          rm -f firebase-nextjs-generator-*.tgz
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## 🚀 Firebase Next.js Generator v${{ github.ref_name }} (Beta)
+
+            ### ✨ Nouveautés
+            - Génération de projets Firebase + Next.js avec App Hosting
+            - Support complet des API routes
+            - 132 tests automatisés
+            - Configuration optimisée Next.js 15
+
+            ### 📦 Installation
+            ```bash
+            npm install -g firebase-nextjs-generator
+            ```
+
+            ### 🎯 Utilisation
+            ```bash
+            firebase-nextjs-generator create --name "mon-projet" --yes
+            ```
+
+            ### 🔗 Liens
+            - [Documentation](https://github.com/${{ github.repository }}/blob/main/README.md)
+            - [Guide de démarrage](https://github.com/${{ github.repository }}/blob/main/docs/QUICK_START.md)
+            - [Issues](https://github.com/${{ github.repository }}/blob/main/issues)
+          draft: false
+          prerelease: false
