@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Script de publication Firebase Next.js Generator (Beta)${NC}"
+echo -e "${BLUE}🚀 Orchestrateur de publication Firebase Next.js Generator (Beta)${NC}"
 echo
 
 # Vérification des prérequis
@@ -78,26 +78,10 @@ fi
 echo -e "${BLUE}📦 Type de version: ${VERSION_TYPE}${NC}"
 echo
 
-# Tests avant publication
-echo -e "${BLUE}🧪 Exécution des tests...${NC}"
-if ! npm test >/dev/null 2>&1; then
-    echo -e "${RED}❌ Les tests ont échoué${NC}"
-    exit 1
-fi
-echo -e "${GREEN}✅ Tous les tests passent${NC}"
-echo
-
-# Build du projet
-echo -e "${BLUE}🔨 Build du projet...${NC}"
-npm run build
-echo -e "${GREEN}✅ Build réussi${NC}"
-echo
-
-# Test du package npm
-echo -e "${BLUE}📦 Test du package npm...${NC}"
-npm pack >/dev/null 2>&1
-PACKAGE_FILE=$(ls firebase-nextjs-generator-*.tgz | head -1)
-echo -e "${GREEN}✅ Package créé: $PACKAGE_FILE${NC}"
+# Vérification rapide (optionnelle)
+echo -e "${BLUE}🔍 Vérification rapide...${NC}"
+echo -e "${YELLOW}⚠️  Tests et build seront exécutés automatiquement par GitHub Actions${NC}"
+echo -e "${GREEN}✅ Vérification locale ignorée${NC}"
 echo
 
 # Mise à jour de la version
@@ -128,42 +112,30 @@ git push origin "v$NEW_VERSION"
 echo -e "${GREEN}✅ Code et tags poussés vers GitHub${NC}"
 echo
 
-# Publication sur npm
-echo -e "${BLUE}📤 Publication sur npm...${NC}"
-read -p "Voulez-vous publier sur npm ? (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if npm publish; then
-        echo -e "${GREEN}✅ Package publié sur npm avec succès !${NC}"
-        echo -e "${BLUE}🌐 URL: https://www.npmjs.com/package/firebase-nextjs-generator${NC}"
-    else
-        echo -e "${RED}❌ Échec de la publication sur npm${NC}"
-        exit 1
-    fi
-else
-    echo -e "${YELLOW}⚠️  Publication npm annulée${NC}"
-fi
+# Publication automatique via GitHub Actions
+echo -e "${BLUE}📤 Publication automatique...${NC}"
+echo -e "${GREEN}✅ La publication npm sera gérée automatiquement par GitHub Actions${NC}"
+echo -e "${BLUE}🌐 Surveillez l'onglet Actions pour suivre le processus${NC}"
 echo
 
-# Nettoyage
+# Nettoyage (plus nécessaire)
 echo -e "${BLUE}🧹 Nettoyage...${NC}"
-rm -f firebase-nextjs-generator-*.tgz
-echo -e "${GREEN}✅ Nettoyage terminé${NC}"
+echo -e "${GREEN}✅ Aucun fichier temporaire à nettoyer${NC}"
 echo
 
 # Résumé final
-echo -e "${GREEN}🎉 Publication terminée avec succès !${NC}"
+echo -e "${GREEN}🎉 Orchestration terminée avec succès !${NC}"
 echo
 echo -e "${BLUE}📋 Résumé:${NC}"
 echo "  📦 Version: $NEW_VERSION"
 echo "  🏷️  Tag: v$NEW_VERSION"
 echo "  🌐 GitHub: Poussé avec succès"
-echo "  📤 npm: $([ -n "$PACKAGE_FILE" ] && echo "Publié" || echo "Non publié")"
+echo "  📤 npm: Publication automatique en cours via GitHub Actions"
 echo
 echo -e "${BLUE}🚀 Prochaines étapes:${NC}"
 echo "  1. Vérifier le tag sur GitHub"
-echo "  2. Créer une release GitHub si nécessaire"
-echo "  3. Vérifier la publication npm"
+echo "  2. Surveiller l'onglet Actions pour la publication npm"
+echo "  3. Créer une release GitHub manuellement si nécessaire"
 echo "  4. Tester l'installation: npm install -g firebase-nextjs-generator"
 echo
-echo -e "${GREEN}🎯 Votre générateur est maintenant public !${NC}" 
+echo -e "${GREEN}🎯 Votre générateur sera publié automatiquement !${NC}" 
