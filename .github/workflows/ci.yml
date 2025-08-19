@@ -69,7 +69,7 @@ jobs:
       - name: Test generation
         run: |
           mkdir -p test-output
-          node dist/cli.js create --name test-project --template minimal --output test-output
+          node dist/cli.js create --name test-project --yes --output test-output
 
       - name: Verify generated structure
         run: |
