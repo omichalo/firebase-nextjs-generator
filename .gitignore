@@ -112,6 +112,9 @@ playwright-report/
 .test-artifacts/
 /test-output-*/
 /test-app-*/
+test-*/
+test-final-*/
+test-performance-*/
 
 # npm package
 *.tgz

@@ -53,19 +53,77 @@ else
     echo -e "${GREEN}✅ Aucune modification non commitée${NC}"
 fi
 
-# Vérification de la branche
+# Vérification de la branche (main/master uniquement)
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
-    echo -e "${YELLOW}⚠️  Vous n'êtes pas sur la branche main/master (actuellement sur $CURRENT_BRANCH)${NC}"
-    read -p "Voulez-vous continuer ? (y/N): " -n 1 -r
+    echo -e "${RED}❌ ERREUR: Vous devez être sur la branche main/master pour publier${NC}"
+    echo -e "${YELLOW}💡 Créez d'abord une Pull Request depuis $CURRENT_BRANCH vers main${NC}"
+    echo -e "${BLUE}📋 Processus recommandé:${NC}"
+    echo "  1. git push origin $CURRENT_BRANCH"
+    echo "  2. Créer une Pull Request sur GitHub"
+    echo "  3. Attendre l'approbation et le merge"
+    echo "  4. git checkout main && git pull origin main"
+    echo "  5. ./publish.sh"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Branche vérifiée: $CURRENT_BRANCH${NC}"
+echo
+
+# Vérification qu'il n'y a pas de PR en cours
+echo -e "${BLUE}🔍 Vérification des Pull Requests...${NC}"
+if command -v gh &> /dev/null; then
+    OPEN_PR_COUNT=$(gh pr list --state open --base main --json number --jq length 2>/dev/null || echo "0")
+    if [ "$OPEN_PR_COUNT" -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  Il y a $OPEN_PR_COUNT Pull Request(s) ouverte(s) vers main${NC}"
+        echo -e "${BLUE}📋 Voulez-vous les consulter avant de continuer ?${NC}"
+        read -p "Afficher les PR ? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            gh pr list --state open --base main
+        fi
+        echo
+        read -p "Continuer malgré les PR ouvertes ? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${RED}❌ Publication annulée${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✅ Aucune Pull Request ouverte vers main${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  GitHub CLI (gh) non installé - impossible de vérifier les PR${NC}"
+    echo -e "${BLUE}💡 Installez GitHub CLI: brew install gh (Mac) ou apt install gh (Ubuntu)${NC}"
+    echo -e "${YELLOW}⚠️  Vérifiez manuellement qu'il n'y a pas de PR en cours${NC}"
+    read -p "Continuer ? (y/N): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${RED}❌ Publication annulée${NC}"
         exit 1
     fi
 fi
+echo
 
-echo -e "${GREEN}✅ Branche vérifiée${NC}"
+# Vérification que le repository est à jour
+echo -e "${BLUE}🔍 Vérification de la synchronisation avec GitHub...${NC}"
+git fetch origin
+LOCAL_COMMIT=$(git rev-parse HEAD)
+REMOTE_COMMIT=$(git rev-parse origin/main)
+if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+    echo -e "${YELLOW}⚠️  Votre branche locale n'est pas à jour avec origin/main${NC}"
+    echo -e "${BLUE}💡 Mettez à jour votre branche locale:${NC}"
+    echo "  git pull origin main"
+    echo -e "${YELLOW}⚠️  Voulez-vous continuer malgré tout ?${NC}"
+    read -p "Continuer ? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${RED}❌ Publication annulée${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✅ Repository synchronisé avec GitHub${NC}"
+fi
 echo
 
 # Type de version
