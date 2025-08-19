@@ -32,14 +32,14 @@ export class TemplateEngine {
 
   private registerHelpers(): void {
     // Helper pour la casse camelCase
-    Handlebars.registerHelper('camelCase', function (str: string) {
+    Handlebars.registerHelper('camelCase', (str: string) => {
       return typeof str === 'string'
         ? str.replace(/-([a-z])/g, g => (g && g[1] ? g[1].toUpperCase() : ''))
         : str;
     });
 
     // Helper pour la casse PascalCase
-    Handlebars.registerHelper('pascalCase', function (str: string) {
+    Handlebars.registerHelper('pascalCase', (str: string) => {
       return typeof str === 'string'
         ? str.replace(/(^|-)([a-z])/g, g =>
             g && g[2] ? g[2].toUpperCase() : ''
@@ -48,7 +48,7 @@ export class TemplateEngine {
     });
 
     // Helper pour la casse kebab-case
-    Handlebars.registerHelper('kebabCase', function (str: string) {
+    Handlebars.registerHelper('kebabCase', (str: string) => {
       return typeof str === 'string'
         ? str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
         : str;
@@ -57,6 +57,7 @@ export class TemplateEngine {
     // Helper pour les conditions
     Handlebars.registerHelper(
       'ifEquals',
+      // eslint-disable-next-line prefer-arrow-callback
       function (this: any, arg1: any, arg2: any, options: any) {
         return arg1 === arg2 ? options.fn(this) : options.inverse(this);
       }
@@ -65,6 +66,7 @@ export class TemplateEngine {
     // Helper pour les conditions multiples
     Handlebars.registerHelper(
       'ifIn',
+      // eslint-disable-next-line prefer-arrow-callback
       function (this: any, elem: any, list: any[], options: any) {
         return list.includes(elem) ? options.fn(this) : options.inverse(this);
       }
@@ -73,6 +75,7 @@ export class TemplateEngine {
     // Helper pour l'indentation
     Handlebars.registerHelper(
       'indent',
+      // eslint-disable-next-line prefer-arrow-callback
       function (this: any, level: number, options: any) {
         const spaces = '  '.repeat(level);
         return options
@@ -86,7 +89,7 @@ export class TemplateEngine {
     // Helper pour les variables d'environnement
     Handlebars.registerHelper(
       'envVar',
-      function (key: string, defaultValue?: string) {
+      (key: string, defaultValue?: string) => {
         return process.env[key] || defaultValue || '';
       }
     );
@@ -94,6 +97,7 @@ export class TemplateEngine {
     // Helper pour les imports conditionnels
     Handlebars.registerHelper(
       'importIf',
+      // eslint-disable-next-line prefer-arrow-callback
       function (
         this: any,
         condition: boolean,
