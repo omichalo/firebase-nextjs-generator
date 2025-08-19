@@ -1,0 +1,179 @@
+{
+  "testConfiguration": {
+    "version": "1.0.0",
+    "description": "Configuration des tests automatisés du générateur",
+    "author": "Firebase Next.js Generator Team",
+    "lastUpdated": "2025-01-11"
+  },
+  "environment": {
+    "requiredVersions": {
+      "node": ">=18.0.0",
+      "npm": ">=9.0.0",
+      "git": ">=2.30.0",
+      "firebase": ">=13.0.0"
+    },
+    "platforms": ["linux", "macos", "windows"],
+    "timeout": {
+      "test": 300,
+      "build": 600,
+      "generation": 900
+    }
+  },
+  "testProjects": {
+    "minimal": {
+      "name": "test-minimal",
+      "description": "Projet de test minimal",
+      "author": "Test User",
+      "version": "1.0.0",
+      "packageManager": "npm",
+      "nextjsVersion": "15",
+      "ui": "mui",
+      "stateManagement": "zustand",
+      "features": ["pwa"],
+      "output": "./test-output-minimal"
+    },
+    "complete": {
+      "name": "test-complete",
+      "description": "Projet de test complet",
+      "author": "Test User",
+      "version": "1.0.0",
+      "packageManager": "npm",
+      "nextjsVersion": "15",
+      "ui": "shadcn",
+      "stateManagement": "redux",
+      "features": ["pwa", "fcm", "analytics", "performance", "sentry"],
+      "output": "./test-output-complete"
+    }
+  },
+  "testSuites": {
+    "installation": {
+      "name": "Tests d'installation et configuration",
+      "description": "Vérification de l'environnement et de l'installation",
+      "tests": ["TEST-001", "TEST-002", "TEST-003", "TEST-004"],
+      "weight": 20,
+      "critical": true
+    },
+    "generation": {
+      "name": "Tests de génération de projet",
+      "description": "Vérification de la génération de projets",
+      "tests": ["TEST-005", "TEST-006", "TEST-007", "TEST-008", "TEST-009", "TEST-010", "TEST-011", "TEST-012", "TEST-013"],
+      "weight": 50,
+      "critical": true
+    },
+    "documentation": {
+      "name": "Tests de la documentation",
+      "description": "Vérification de la cohérence de la documentation",
+      "tests": ["TEST-014", "TEST-015", "TEST-016"],
+      "weight": 20,
+      "critical": false
+    },
+    "validation": {
+      "name": "Tests de validation et nettoyage",
+      "description": "Validation finale et nettoyage",
+      "tests": ["TEST-017", "TEST-018", "TEST-019"],
+      "weight": 10,
+      "critical": false
+    }
+  },
+  "assertions": {
+    "fileStructure": {
+      "requiredDirectories": [
+        "frontend",
+        "backend",
+        "scripts",
+        "frontend/src",
+        "frontend/src/app",
+        "frontend/src/components",
+        "frontend/src/hooks",
+        "frontend/src/stores",
+        "frontend/src/lib",
+        "backend/functions",
+        "backend/firestore",
+        "backend/storage"
+      ],
+      "requiredFiles": [
+        "README.md",
+        "frontend/package.json",
+        "frontend/tsconfig.json",
+        "frontend/src/app/page.tsx",
+        "frontend/src/app/layout.tsx",
+        "backend/firebase.json",
+        "backend/.firebaserc",
+        "backend/functions/package.json",
+        "backend/functions/src/index.ts"
+      ]
+    },
+    "dependencies": {
+      "mui": ["@mui/material", "@emotion/react", "@emotion/styled"],
+      "shadcn": ["tailwindcss", "autoprefixer", "postcss"],
+      "zustand": ["zustand"],
+      "redux": ["@reduxjs/toolkit", "react-redux"],
+      "firebase": ["firebase", "firebase-admin"],
+      "nextjs": ["next", "react", "react-dom"]
+    },
+    "features": {
+      "pwa": ["public/manifest.json", "src/pwa/pwa-config.ts"],
+      "fcm": ["src/fcm/fcm-config.ts", "src/fcm/use-fcm.ts"],
+      "analytics": ["src/lib/analytics-config.ts"],
+      "performance": ["src/performance/performance-config.ts"],
+      "sentry": ["src/sentry/sentry-config.ts"]
+    }
+  },
+  "reporting": {
+    "outputFormats": ["console", "json", "html", "markdown"],
+    "includeDetails": true,
+    "includeTiming": true,
+    "includeEnvironment": true,
+    "saveArtifacts": true,
+    "artifactsDirectory": "./test-artifacts"
+  },
+  "cleanup": {
+    "removeTestProjects": true,
+    "removeTemporaryFiles": true,
+    "removeBuildArtifacts": false,
+    "removeLogs": true
+  },
+  "notifications": {
+    "onSuccess": {
+      "enabled": true,
+      "methods": ["console", "file"]
+    },
+    "onFailure": {
+      "enabled": true,
+      "methods": ["console", "file", "email"],
+      "retryCount": 3,
+      "retryDelay": 60
+    }
+  },
+  "performance": {
+    "benchmarks": {
+      "generationTime": {
+        "minimal": 30,
+        "complete": 60,
+        "unit": "seconds"
+      },
+      "buildTime": {
+        "max": 120,
+        "unit": "seconds"
+      },
+      "memoryUsage": {
+        "max": 512,
+        "unit": "MB"
+      }
+    }
+  },
+  "integration": {
+    "externalServices": {
+      "firebase": {
+        "enabled": false,
+        "projectId": "test-project",
+        "region": "us-central1"
+      },
+      "github": {
+        "enabled": false,
+        "repository": "test-repo",
+        "branch": "test-branch"
+      }
+    }
+  }
+} 

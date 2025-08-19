@@ -1,0 +1,170 @@
+// Configuration Sentry pour le monitoring d'erreurs
+export const SENTRY_CONFIG = {
+  // DSN Sentry
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || '',
+  
+  // Configuration de l'environnement
+  environment: process.env.NODE_ENV || 'development',
+  
+  // Configuration des releases
+  release: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+  
+  // Configuration du sampling
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  
+  // Configuration des profils
+  profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  
+  // Configuration des replays
+  replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  replaysOnErrorSampleRate: 1.0,
+  
+  // Configuration des intégrations
+  integrations: [
+    // Intégrations par défaut
+  ],
+  
+  // Configuration des beforeSend
+  beforeSend: (event: any, hint: any) => {
+    // Filtrer les erreurs sensibles
+    if (event.exception) {
+      const exception = event.exception.values?.[0];
+      if (exception?.value?.includes('password') || 
+          exception?.value?.includes('token') ||
+          exception?.value?.includes('secret')) {
+        return null;
+      }
+    }
+    
+    // Ajouter des informations contextuelles
+    event.extra = {
+      ...event.extra,
+      timestamp: new Date().toISOString(),
+      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server',
+    };
+    
+    return event;
+  },
+  
+  // Configuration des beforeSendTransaction
+  beforeSendTransaction: (transaction: any) => {
+    // Filtrer les transactions sensibles
+    if (transaction.name?.includes('/api/auth') || 
+        transaction.name?.includes('/api/admin')) {
+      return null;
+    }
+    
+    return transaction;
+  },
+  
+  // Configuration des tags
+  defaultTags: {
+    app: '{{project.name}}',
+    version: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+  },
+  
+  // Configuration des contextes
+  defaultContexts: {
+    runtime: {
+      name: 'nextjs',
+      version: process.env.NEXT_PUBLIC_NEXT_VERSION || '15.0.0',
+    },
+    browser: typeof window !== 'undefined' ? {
+      name: window.navigator.userAgent,
+      version: window.navigator.userAgent,
+    } : undefined,
+  },
+  
+  // Vérification du support
+  isSupported: () => {
+    return !!SENTRY_CONFIG.dsn;
+  },
+  
+  // Initialisation
+  initialize: () => {
+    if (!SENTRY_CONFIG.isSupported()) {
+      console.warn('Sentry DSN non configuré');
+      return;
+    }
+    
+    if (typeof window !== 'undefined') {
+      // Initialisation côté client
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.init({
+          dsn: SENTRY_CONFIG.dsn,
+          environment: SENTRY_CONFIG.environment,
+          release: SENTRY_CONFIG.release,
+          tracesSampleRate: SENTRY_CONFIG.tracesSampleRate,
+          profilesSampleRate: SENTRY_CONFIG.profilesSampleRate,
+          replaysSessionSampleRate: SENTRY_CONFIG.replaysSessionSampleRate,
+          replaysOnErrorSampleRate: SENTRY_CONFIG.replaysOnErrorSampleRate,
+          beforeSend: SENTRY_CONFIG.beforeSend,
+          beforeSendTransaction: SENTRY_CONFIG.beforeSendTransaction,
+        });
+        
+        console.log('Sentry initialisé côté client');
+      });
+    }
+  },
+  
+  // Capture d'erreur
+  captureException: (error: Error, context?: any) => {
+    if (!SENTRY_CONFIG.isSupported()) return;
+    
+    if (typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.captureException(error, context);
+      });
+    }
+  },
+  
+  // Capture de message
+  captureMessage: (message: string, level: any = 'info', context?: any) => {
+    if (!SENTRY_CONFIG.isSupported()) return;
+    
+    if (typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        // Nouvelle signature Sentry: captureMessage(message, options?)
+        const options = {
+          level,
+          ...(context && { extra: context })
+        };
+        Sentry.captureMessage(message, options);
+      });
+    }
+  },
+  
+  // Ajout de contexte utilisateur
+  setUser: (user: any) => {
+    if (!SENTRY_CONFIG.isSupported()) return;
+    
+    if (typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.setUser(user);
+      });
+    }
+  },
+  
+  // Ajout de tags
+  setTag: (key: string, value: string) => {
+    if (!SENTRY_CONFIG.isSupported()) return;
+    
+    if (typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.setTag(key, value);
+      });
+    }
+  },
+  
+  // Ajout de contexte
+  setContext: (name: string, context: any) => {
+    if (!SENTRY_CONFIG.isSupported()) return;
+    
+    if (typeof window !== 'undefined') {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.setContext(name, context);
+      });
+    }
+  }
+}; 

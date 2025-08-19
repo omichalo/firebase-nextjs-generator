@@ -1,0 +1,27 @@
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import { db } from '../admin';
+
+export const onUserCreated = functions.auth.user().onCreate(async (user) => {
+  try {
+    console.log(`Nouvel utilisateur créé: ${user.uid}`);
+    
+    // Créer le document utilisateur dans Firestore
+    await db.collection('users').doc(user.uid).set({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || null,
+      photoURL: user.photoURL || null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      role: 'user',
+      isActive: true,
+      lastLogin: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    console.log(`Document utilisateur créé pour: ${user.uid}`);
+  } catch (error) {
+    console.error(`Erreur lors de la création du document utilisateur: ${error}`);
+    throw error;
+  }
+}); 

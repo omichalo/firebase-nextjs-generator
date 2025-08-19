@@ -1,0 +1,141 @@
+// Configuration Firebase Performance Monitoring
+export const PERFORMANCE_CONFIG = {
+  // Configuration Firebase
+  firebaseConfig: {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+  },
+  
+  // Configuration des traces
+  traces: {
+    // Traces automatiques
+    automatic: {
+      pageLoad: true,
+      networkRequests: true,
+      userInteractions: true,
+    },
+    
+    // Traces personnalisées
+    custom: {
+      apiCall: 'api_call',
+      databaseQuery: 'database_query',
+      imageLoad: 'image_load',
+      componentRender: 'component_render',
+    },
+  },
+  
+  // Configuration des métriques
+  metrics: {
+    // Métriques Web Vitals
+    webVitals: {
+      CLS: true, // Cumulative Layout Shift
+      FID: true, // First Input Delay
+      FCP: true, // First Contentful Paint
+      LCP: true, // Largest Contentful Paint
+      TTFB: true, // Time to First Byte
+    },
+    
+    // Métriques personnalisées
+    custom: {
+      timeToInteractive: 'time_to_interactive',
+      memoryUsage: 'memory_usage',
+      bundleSize: 'bundle_size',
+    },
+  },
+  
+  // Configuration du sampling
+  sampling: {
+    // Taux d'échantillonnage (0.0 à 1.0)
+    rate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    
+    // Échantillonnage par environnement
+    environment: {
+      development: 1.0,
+      staging: 0.5,
+      production: 0.1,
+    },
+  },
+  
+  // Configuration des seuils
+  thresholds: {
+    // Seuils de performance
+    performance: {
+      pageLoad: 3000, // 3 secondes
+      apiCall: 1000,  // 1 seconde
+      imageLoad: 2000, // 2 secondes
+    },
+    
+    // Seuils d'erreur
+    error: {
+      maxErrors: 10,
+      errorRate: 0.05, // 5%
+    },
+  },
+  
+  // Vérification du support
+  isSupported: () => {
+    if (typeof window === 'undefined') return false;
+    return 'firebase' in window && 'performance' in window.firebase;
+  },
+  
+  // Initialisation
+  initialize: () => {
+    if (typeof window === 'undefined') return;
+    
+    if (PERFORMANCE_CONFIG.isSupported()) {
+      const perf = window.firebase.performance();
+      
+      // Configuration automatique
+      if (PERFORMANCE_CONFIG.traces.automatic.pageLoad) {
+        perf.trace('page_load');
+      }
+      
+      if (PERFORMANCE_CONFIG.traces.automatic.networkRequests) {
+        perf.trace('network_request');
+      }
+      
+      console.log('Firebase Performance Monitoring initialisé');
+    }
+  },
+  
+  // Création d'une trace personnalisée
+  createTrace: (traceName: string) => {
+    if (typeof window === 'undefined') return null;
+    
+    if (PERFORMANCE_CONFIG.isSupported()) {
+      const perf = window.firebase.performance();
+      return perf.trace(traceName);
+    }
+    
+    return null;
+  },
+  
+  // Mesure d'une métrique personnalisée
+  measureMetric: (metricName: string, value: number) => {
+    if (typeof window === 'undefined') return;
+    
+    if (PERFORMANCE_CONFIG.isSupported()) {
+      const perf = window.firebase.performance();
+      perf.trace(metricName).putMetric(metricName, value);
+    }
+  }
+};
+
+// Types globaux
+declare global {
+  interface Window {
+    firebase: {
+      performance: () => {
+        trace: (name: string) => {
+          start: () => void;
+          stop: () => void;
+          putMetric: (name: string, value: number) => void;
+        };
+      };
+    };
+  }
+} 

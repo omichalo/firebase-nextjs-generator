@@ -1,0 +1,80 @@
+import { useEffect, useState } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User
+} from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useAuthStore } from '@/stores/zustand/auth-store';
+
+export const useAuth = () => {
+  const { user, setUser, setLoading, setError } = useAuthStore();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser({
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || undefined,
+          photoURL: user.photoURL || undefined,
+        });
+      } else {
+        setUser(null);
+      }
+      setIsInitialized(true);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [setUser, setLoading]);
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Erreur de connexion');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Erreur d\'inscription');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await signOut(auth);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Erreur de déconnexion');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    user,
+    isInitialized,
+    signIn,
+    signUp,
+    logout,
+  };
+}; 

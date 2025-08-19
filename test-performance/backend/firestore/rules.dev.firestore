@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles par défaut - restreindre l'accès
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Règles pour les utilisateurs authentifiés
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Règles pour les données publiques (lecture seule)
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Règles pour les administrateurs
+    match /admin/{document=**} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Règles pour les posts (lecture publique, écriture par l'auteur)
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.authorId;
+    }
+    
+    // Règles pour les commentaires
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.authorId;
+    }
+    
+    // Règles pour les logs d'audit (lecture par l'utilisateur concerné)
+    match /audit_logs/{logId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow write: if false; // Seules les Cloud Functions peuvent écrire
+    }
+    
+    // Règles pour les logs de fichiers
+    match /file_logs/{logId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow write: if false; // Seules les Cloud Functions peuvent écrire
+    }
+    
+    // Règles pour les sauvegardes (lecture par les admins uniquement)
+    match /backups/{backupId} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+} 

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "dev": "test-project-dev"
+  },
+  "targets": {
+    "test-project-dev": {
+      "hosting": {
+        "dev": [
+          "test-project-dev"
+        ]
+      }
+    }
+  }
+} 

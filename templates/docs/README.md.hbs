@@ -1,0 +1,265 @@
+# {{project.name}}
+
+{{project.description}}
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+
+- Node.js {{nextjs.nodeVersion}} ou supérieur
+- npm, Yarn ou pnpm
+- Compte Firebase
+- Firebase CLI {{#if firebase.cliVersion}}{{firebase.cliVersion}}{{else}}14.0.0{{/if}} ou supérieur
+
+### Installation
+
+1. **Cloner le projet**
+   ```bash
+   git clone <repository-url>
+   cd {{project.name}}
+   ```
+
+2. **Installer les dépendances frontend**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+3. **Configurer Firebase**
+   ```bash
+   cd ../backend
+   firebase login
+   firebase use dev  # ou l'environnement de votre choix
+   ```
+
+4. **Lancer l'application**
+   ```bash
+   cd ../frontend
+   npm run dev
+   ```
+
+## 🏗️ Architecture
+
+Ce projet utilise une architecture **frontend/backend** séparée avec **Firebase App Hosting** :
+
+```
+{{project.name}}/
+├── frontend/          # Application Next.js {{nextjs.version}} avec API routes
+├── backend/           # Configuration Firebase App Hosting
+│   ├── firebase.json              # Configuration Firebase (sans hosting)
+│   ├── firebase-app-hosting.json # Configuration App Hosting
+│   ├── functions/                 # Cloud Functions
+│   ├── firestore/                 # Base de données
+│   └── extensions/                # Extensions Firebase
+└── scripts/           # Scripts d'automatisation
+```
+
+### Frontend (Next.js {{nextjs.version}})
+
+- **Framework**: Next.js {{nextjs.version}} avec App Router
+- **UI**: {{nextjs.ui}}
+- **State Management**: {{nextjs.stateManagement}}
+- **Styling**: {{#if nextjs.features.mui}}Material-UI (MUI){{else}}CSS Modules{{/if}}
+- **API Routes**: Support complet des routes API Next.js
+- **PWA**: {{#if nextjs.features.pwa}}Activé avec Service Worker{{else}}Désactivé{{/if}}
+
+### Backend (Firebase App Hosting)
+
+- **Authentication**: Firebase Auth avec triggers
+- **Database**: Firestore avec règles de sécurité
+- **Storage**: Firebase Storage avec règles de sécurité
+- **Functions**: Cloud Functions Node.js 20
+- **Hosting**: Firebase App Hosting avec API routes
+- **Extensions**: Intégrations Firebase prêtes à l'emploi
+
+## 🔧 Configuration
+
+### Environnements Firebase
+
+{{#each firebase.environments}}
+- **{{name}}**: {{projectId}} ({{region}})
+{{/each}}
+
+### Variables d'environnement
+
+Créez un fichier `.env.local` dans le dossier `frontend/` :
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+{{#if nextjs.features.analytics}}
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+{{/if}}
+{{#if nextjs.features.sentry}}
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+{{/if}}
+```
+
+## 📱 Fonctionnalités
+
+{{#if nextjs.features.pwa}}
+- ✅ **PWA** - Progressive Web App avec Service Worker
+{{/if}}
+{{#if nextjs.features.fcm}}
+- ✅ **FCM** - Firebase Cloud Messaging pour notifications push
+{{/if}}
+{{#if nextjs.features.analytics}}
+- ✅ **Analytics** - Firebase Analytics pour le suivi des utilisateurs
+{{/if}}
+{{#if nextjs.features.performance}}
+- ✅ **Performance** - Firebase Performance Monitoring
+{{/if}}
+{{#if nextjs.features.sentry}}
+- ✅ **Sentry** - Monitoring des erreurs et performance
+{{/if}}
+
+## 🚀 Déploiement Firebase App Hosting
+
+### Déploiement automatique
+
+```bash
+# Déploiement en développement
+./scripts/deploy-env.sh dev
+
+# Déploiement en production
+./scripts/deploy-env.sh prod
+```
+
+### Déploiement manuel
+
+#### 1. Build de l'application Next.js
+```bash
+cd frontend
+npm run build
+```
+
+#### 2. Déploiement Firebase complet
+```bash
+cd ../backend
+firebase deploy
+```
+
+#### 3. Déploiement sélectif
+```bash
+# Déploiement App Hosting uniquement
+firebase deploy --only hosting
+
+# Déploiement Cloud Functions uniquement
+firebase deploy --only functions
+
+# Déploiement Firestore uniquement
+firebase deploy --only firestore
+
+# Déploiement Storage uniquement
+firebase deploy --only storage
+```
+
+### Configuration Firebase App Hosting
+
+Le projet utilise **Firebase App Hosting** pour supporter les API routes Next.js :
+
+```json
+// firebase-app-hosting.json
+{
+  "hosting": {
+    "public": "frontend/.next",
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "nextjs-api"
+      }
+    ]
+  }
+}
+```
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+npm run test
+
+# Tests E2E
+npm run test:e2e
+
+# Couverture des tests
+npm run test:coverage
+
+# Tests de validation Firebase
+cd backend
+firebase deploy --dry-run
+```
+
+## 📚 Documentation
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Firebase App Hosting](https://firebase.google.com/docs/hosting)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Material-UI Documentation](https://mui.com/material-ui/getting-started/)
+{{#if nextjs.features.pwa}}
+- [PWA Documentation](https://web.dev/progressive-web-apps/)
+{{/if}}
+{{#if nextjs.features.analytics}}
+- [Firebase Analytics](https://firebase.google.com/docs/analytics)
+{{/if}}
+{{#if nextjs.features.performance}}
+- [Firebase Performance](https://firebase.google.com/docs/perf-mon)
+{{/if}}
+{{#if nextjs.features.sentry}}
+- [Sentry Documentation](https://docs.sentry.io/)
+{{/if}}
+
+## 🔍 Débogage et Monitoring
+
+### Logs Firebase
+```bash
+# Voir les logs des Cloud Functions
+firebase functions:log
+
+# Voir les logs en temps réel
+firebase functions:log --tail
+```
+
+### Monitoring
+{{#if nextjs.features.sentry}}
+- **Sentry** : Monitoring des erreurs et performance
+{{/if}}
+{{#if nextjs.features.performance}}
+- **Firebase Performance** : Monitoring des performances
+{{/if}}
+{{#if nextjs.features.analytics}}
+- **Firebase Analytics** : Suivi des utilisateurs
+{{/if}}
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créez une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## 👥 Auteurs
+
+- **{{project.author}}** - *Développement initial*
+
+## 🙏 Remerciements
+
+- [Next.js](https://nextjs.org/) - Framework React avec App Router
+- [Firebase](https://firebase.google.com/) - Plateforme backend et App Hosting
+- [Material-UI](https://mui.com/) - Composants UI
+- [Vercel](https://vercel.com/) - Développement et hosting
+
+---
+
+**🚀 Généré avec ❤️ par Firebase Next.js Generator avec App Hosting**
+
+**📱 Support complet des API routes Next.js sur Firebase App Hosting** 

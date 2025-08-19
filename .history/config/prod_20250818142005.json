@@ -1,0 +1,32 @@
+{
+  "environment": "production",
+  "firebase": {
+    "projectId": "prod-project-id",
+    "region": "us-central1",
+    "emulators": {
+      "enabled": false
+    }
+  },
+  "nextjs": {
+    "env": "production",
+    "debug": false,
+    "analytics": {
+      "enabled": true,
+      "measurementId": "G-PROD123456"
+    },
+    "performance": {
+      "enabled": true
+    },
+    "sentry": {
+      "enabled": true,
+      "dsn": "https://prod-dsn@sentry.io/prod-project"
+    }
+  },
+  "features": {
+    "pwa": true,
+    "fcm": true,
+    "analytics": true,
+    "performance": true,
+    "sentry": true
+  }
+} 

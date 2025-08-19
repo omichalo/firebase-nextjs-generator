@@ -1,0 +1,62 @@
+import * as Sentry from '@sentry/nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Configuration Sentry pour le middleware
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+
+// Initialisation Sentry si DSN disponible
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    release: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  });
+}
+
+export function middleware(request: NextRequest) {
+  try {
+    // Ajouter des informations contextuelles
+    const requestContext: any = {
+      url: request.url,
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries()),
+    };
+
+    // Propriétés optionnelles qui peuvent ne pas être disponibles
+    if ('geo' in request) {
+      requestContext.geo = (request as any).geo;
+    }
+    if ('ip' in request) {
+      requestContext.ip = (request as any).ip;
+    }
+
+    Sentry.setContext('request', requestContext);
+
+    // Ajouter des tags
+    Sentry.setTag('route', request.nextUrl.pathname);
+    Sentry.setTag('method', request.method);
+    Sentry.setTag('environment', process.env.NODE_ENV || 'development');
+
+    // Continuer le traitement
+    return NextResponse.next();
+  } catch (error) {
+    // Capturer les erreurs du middleware
+    Sentry.captureException(error, {
+      tags: {
+        location: 'middleware',
+        route: request.nextUrl.pathname,
+      },
+    });
+
+    // Continuer malgré l'erreur
+    return NextResponse.next();
+  }
+}
+
+export const config = {
+  matcher: [
+    // Appliquer à toutes les routes sauf les assets statiques
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+}; 

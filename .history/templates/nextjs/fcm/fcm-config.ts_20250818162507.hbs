@@ -1,0 +1,63 @@
+// Configuration Firebase Cloud Messaging (FCM)
+// Pour les notifications push
+
+export const FCM_CONFIG = {
+  // Vapid key pour les notifications push
+  vapidKey: process.env.NEXT_PUBLIC_FCM_VAPID_KEY || 'your-vapid-key-here',
+  
+  // Configuration des notifications par défaut
+  defaultNotificationOptions: {
+    title: '{{project.name}}',
+    body: 'Nouvelle notification',
+    icon: '/icon-192x192.png',
+    badge: '/badge-72x72.png',
+    tag: 'default',
+    requireInteraction: false,
+    silent: false,
+    actions: [
+      {
+        action: 'open',
+        title: 'Ouvrir'
+      },
+      {
+        action: 'close',
+        title: 'Fermer'
+      }
+    ]
+  },
+  
+  // Configuration des permissions
+  permissionOptions: {
+    userVisibleOnly: true,
+    applicationServerKey: process.env.NEXT_PUBLIC_FCM_VAPID_KEY
+  }
+};
+
+// Fonction pour demander les permissions de notification
+export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
+  if (!('Notification' in window)) {
+    console.warn('Ce navigateur ne supporte pas les notifications');
+    return 'denied';
+  }
+
+  if (Notification.permission === 'granted') {
+    return 'granted';
+  }
+
+  if (Notification.permission === 'denied') {
+    return 'denied';
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    return permission;
+  } catch (error) {
+    console.error('Erreur lors de la demande de permission:', error);
+    return 'denied';
+  }
+};
+
+// Fonction pour vérifier si les notifications sont supportées
+export const isNotificationSupported = (): boolean => {
+  return 'Notification' in window && 'serviceWorker' in navigator;
+}; 

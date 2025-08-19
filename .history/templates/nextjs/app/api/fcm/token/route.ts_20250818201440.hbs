@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { token } = await request.json();
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Token FCM manquant' },
+        { status: 400 }
+      );
+    }
+
+    // Ici vous pouvez stocker le token dans votre base de données
+    // ou l'envoyer à Firebase pour les notifications push
+    
+    console.log('Token FCM reçu:', token);
+    
+    // Pour l'instant, on retourne juste une confirmation
+    return NextResponse.json({
+      success: true,
+      message: 'Token FCM reçu avec succès',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Erreur lors du traitement du token FCM:', error);
+    
+    return NextResponse.json(
+      { error: 'Erreur interne du serveur' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  return NextResponse.json({
+    message: 'Endpoint FCM Token - Utilisez POST pour envoyer un token'
+  });
+} 

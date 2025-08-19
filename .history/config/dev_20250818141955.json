@@ -1,0 +1,38 @@
+{
+  "environment": "development",
+  "firebase": {
+    "projectId": "dev-project-id",
+    "region": "us-central1",
+    "emulators": {
+      "enabled": true,
+      "host": "localhost",
+      "ports": {
+        "auth": 9099,
+        "firestore": 8080,
+        "functions": 5001,
+        "storage": 9199,
+        "ui": 4000
+      }
+    }
+  },
+  "nextjs": {
+    "env": "development",
+    "debug": true,
+    "analytics": {
+      "enabled": false
+    },
+    "performance": {
+      "enabled": false
+    },
+    "sentry": {
+      "enabled": false
+    }
+  },
+  "features": {
+    "pwa": true,
+    "fcm": false,
+    "analytics": false,
+    "performance": false,
+    "sentry": false
+  }
+} 

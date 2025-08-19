@@ -1,0 +1,314 @@
+{{#ifEquals nextjs.ui "mui"}}
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Container, Typography, Box, Card, CardContent, Grid, Avatar, Chip, Button } from '@mui/material';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
+{{/ifEquals}}
+
+{{#ifEquals nextjs.ui "shadcn"}}
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+{{/ifEquals}}
+
+export default function DashboardPage() {
+  {{#ifEquals nextjs.ui "mui"}}
+  const { user, isAuthenticated, isInitialized, logout } = useAuth();
+  const router = useRouter();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeProjects: 0,
+    recentActivity: 0
+  });
+
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, isInitialized, router]);
+
+  useEffect(() => {
+    // Simuler le chargement des statistiques depuis Firebase
+    if (isAuthenticated) {
+      // Ici vous pourriez appeler vos fonctions Firebase
+      setStats({
+        totalUsers: 1250,
+        activeProjects: 8,
+        recentActivity: 23
+      });
+    }
+  }, [isAuthenticated]);
+
+  if (!isInitialized) {
+    return (
+      <Container>
+        <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography>Chargement...</Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Redirection en cours
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+    }
+  };
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ py: 8 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 8 }}>
+          <Typography variant="h3" component="h1">
+            Dashboard
+          </Typography>
+          <Button variant="outlined" onClick={handleLogout}>
+            Déconnexion
+          </Button>
+        </Box>
+
+        {/* User Info */}
+        <Card sx={{ mb: 6 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Avatar sx={{ width: 64, height: 64 }}>
+                {user?.displayName?.[0] || user?.email?.[0] || 'U'}
+              </Avatar>
+              <Box>
+                <Typography variant="h5">
+                  {user?.displayName || user?.email || 'Utilisateur'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {user?.email || 'utilisateur@example.com'}
+                </Typography>
+                <Chip label="Connecté" color="success" size="small" sx={{ mt: 2 }} />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Stats Grid */}
+        <Grid container spacing={3} sx={{ mb: 8 }}>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="primary">
+                    {stats.totalUsers}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Utilisateurs totaux
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="secondary">
+                    {stats.activeProjects}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Projets actifs
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="success">
+                    {stats.recentActivity}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Activités récentes
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Actions rapides
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button variant="contained" color="primary">
+                Nouveau projet
+              </Button>
+              <Button variant="outlined">
+                Voir les rapports
+              </Button>
+              <Button variant="outlined">
+                Paramètres
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Container>
+  );
+  {{/ifEquals}}
+  
+  {{#ifEquals nextjs.ui "shadcn"}}
+  const { user, isAuthenticated, isInitialized, logout } = useAuth();
+  const router = useRouter();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeProjects: 0,
+    recentActivity: 0
+  });
+
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, isInitialized, router]);
+
+  useEffect(() => {
+    // Simuler le chargement des statistiques depuis Firebase
+    if (isAuthenticated) {
+      // Ici vous pourriez appeler vos fonctions Firebase
+      setStats({
+        totalUsers: 1250,
+        activeProjects: 8,
+        recentActivity: 23
+      });
+    }
+  }, [isAuthenticated]);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Redirection en cours
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Dashboard
+            </h1>
+            <Button variant="outline" onClick={handleLogout}>
+              Déconnexion
+            </Button>
+          </div>
+
+          {/* User Info */}
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-medium text-xl">
+                    {user?.displayName?.[0] || user?.email?.[0] || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    {user?.displayName || user?.email || 'Utilisateur'}
+                  </h2>
+                  <p className="text-gray-600">{user?.email || 'utilisateur@example.com'}</p>
+                  <Badge variant="secondary" className="mt-2">Connecté</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {stats.totalUsers}
+                  </div>
+                  <p className="text-gray-600">Utilisateurs totaux</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">
+                    {stats.activeProjects}
+                  </div>
+                  <p className="text-gray-600">Projets actifs</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {stats.recentActivity}
+                  </div>
+                  <p className="text-gray-600">Activités récentes</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
+              <div className="flex space-x-2">
+                <Button>Nouveau projet</Button>
+                <Button variant="outline">Voir les rapports</Button>
+                <Button variant="outline">Paramètres</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+  {{/ifEquals}}
+} 

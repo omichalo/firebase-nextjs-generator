@@ -1,0 +1,45 @@
+name: {{extension.name}}
+version: {{extension.version}}
+specVersion: v1beta
+
+displayName: {{extension.name}}
+description: Extension Firebase pour {{project.name}}
+
+author:
+  authorName: Firebase Team
+  url: https://firebase.google.com
+
+license: Apache-2.0
+
+roles:
+  - role: firebaseauth.admin
+    reason: Gestion des utilisateurs et de l'authentification
+
+resources:
+  - name: {{extension.name}}-function
+    type: firebaseextensions.v1beta.function
+    description: Fonction Cloud pour {{extension.name}}
+    properties:
+      runtime: nodejs20
+      location: us-central1
+      httpsTrigger: {}
+
+params:
+  - param: PARAM1
+    label: Paramètre 1
+    description: Description du paramètre 1
+    type: string
+    default: "valeur_par_défaut"
+    required: false
+
+  - param: PARAM2
+    label: Paramètre 2
+    description: Description du paramètre 2
+    type: select
+    options:
+      - label: Option 1
+        value: "option1"
+      - label: Option 2
+        value: "option2"
+    default: "option1"
+    required: true 

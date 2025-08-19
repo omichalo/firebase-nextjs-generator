@@ -1,0 +1,135 @@
+@echo off
+REM Script d'initialisation automatique pour {{project.name}} (Windows)
+REM Usage: init-project.bat [environment]
+REM Exemple: init-project.bat dev
+
+setlocal enabledelayedexpansion
+
+REM Configuration
+set PROJECT_NAME={{project.name}}
+set FRONTEND_DIR=frontend
+set BACKEND_DIR=backend
+set DEFAULT_ENVIRONMENT=dev
+
+REM Vérifier les arguments
+if "%1"=="" (
+    set ENVIRONMENT=%DEFAULT_ENVIRONMENT%
+) else (
+    set ENVIRONMENT=%1
+)
+
+REM Validation de l'environnement
+if not "%ENVIRONMENT%"=="dev" if not "%ENVIRONMENT%"=="staging" if not "%ENVIRONMENT%"=="prod" (
+    echo ❌ Environnement invalide: %ENVIRONMENT%
+    echo Environnements valides: dev, staging, prod
+    exit /b 1
+)
+
+REM Vérifier que nous sommes dans le bon répertoire
+if not exist "%FRONTEND_DIR%" (
+    echo ❌ Répertoire %FRONTEND_DIR% non trouvé
+    echo Assurez-vous d'exécuter ce script depuis la racine du projet généré
+    exit /b 1
+)
+
+if not exist "%BACKEND_DIR%" (
+    echo ❌ Répertoire %BACKEND_DIR% non trouvé
+    echo Assurez-vous d'exécuter ce script depuis la racine du projet généré
+    exit /b 1
+)
+
+echo 🚀 Initialisation automatique de %PROJECT_NAME%
+echo 📍 Environnement: %ENVIRONMENT%
+echo.
+
+REM Étape 1: Installation des dépendances frontend
+echo ℹ️  Étape 1/4: Installation des dépendances frontend...
+cd "%FRONTEND_DIR%"
+
+if not exist "package.json" (
+    echo ❌ package.json non trouvé dans %FRONTEND_DIR%
+    exit /b 1
+)
+
+echo ℹ️  Installation des dépendances npm...
+call npm install
+
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Échec de l'installation des dépendances frontend
+    exit /b 1
+)
+
+echo ✅ Dépendances frontend installées avec succès
+cd ..
+
+REM Étape 2: Vérification de Firebase CLI
+echo ℹ️  Étape 2/4: Vérification de Firebase CLI...
+
+firebase --version >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Firebase CLI non installé
+    echo Installez-le avec: npm install -g firebase-tools
+    exit /b 1
+)
+
+for /f "tokens=*" %%i in ('firebase --version') do set FIREBASE_VERSION=%%i
+echo ✅ Firebase CLI détecté: !FIREBASE_VERSION!
+
+REM Étape 3: Configuration Firebase
+echo ℹ️  Étape 3/4: Configuration Firebase...
+
+cd "%BACKEND_DIR%"
+
+REM Vérifier la connexion Firebase
+echo ℹ️  Vérification de la connexion Firebase...
+firebase projects:list >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo ⚠️  Utilisateur Firebase non connecté
+    echo ℹ️  Connexion à Firebase...
+    firebase login
+)
+
+REM Vérifier que le projet existe
+for /f "tokens=2 delims=:," %%i in ('findstr "projectId" .firebaserc') do (
+    set PROJECT_ID=%%i
+    set PROJECT_ID=!PROJECT_ID:"=!
+    set PROJECT_ID=!PROJECT_ID: =!
+)
+
+if "%PROJECT_ID%"=="" (
+    echo ❌ Project ID non trouvé dans .firebaserc
+    exit /b 1
+)
+
+echo ℹ️  Projet Firebase: %PROJECT_ID%
+
+REM Basculer vers l'environnement
+echo ℹ️  Basculement vers l'environnement %ENVIRONMENT%...
+firebase use "%ENVIRONMENT%" >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo ⚠️  Environnement %ENVIRONMENT% non trouvé, création...
+    firebase use --add "%PROJECT_ID%" "%ENVIRONMENT%"
+) else (
+    echo ✅ Environnement %ENVIRONMENT% activé
+)
+
+cd ..
+
+REM Étape 4: Lancement de l'application
+echo ℹ️  Étape 4/4: Lancement de l'application...
+
+cd "%FRONTEND_DIR%"
+
+echo ✅ 🎉 Initialisation terminée avec succès!
+echo.
+echo 📋 Prochaines étapes:
+echo    🌐 L'application va démarrer sur http://localhost:3000
+echo    🔥 Firebase est configuré pour l'environnement: %ENVIRONMENT%
+echo    📱 Ouvrez un autre terminal pour les commandes Firebase
+echo.
+echo 🚀 Lancement de l'application...
+echo    Appuyez sur Ctrl+C pour arrêter
+echo.
+
+REM Lancer l'application
+call npm run dev 

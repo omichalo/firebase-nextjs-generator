@@ -1,0 +1,77 @@
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+// Fonction utilitaire pour fusionner les classes CSS
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Fonction pour formater les dates
+export function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// Fonction pour formater les nombres
+export function formatNumber(num: number): string {
+  return new Intl.NumberFormat('fr-FR').format(num);
+}
+
+// Fonction pour tronquer le texte
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+}
+
+// Fonction pour générer un ID unique
+export function generateId(): string {
+  return Math.random().toString(36).substr(2, 9);
+}
+
+// Fonction pour valider un email
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Fonction pour valider un mot de passe
+export function isValidPassword(password: string): boolean {
+  // Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+}
+
+// Fonction pour capitaliser la première lettre
+export function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// Fonction pour convertir en kebab-case
+export function toKebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+}
+
+// Fonction pour convertir en camelCase
+export function toCamelCase(str: string): string {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+      return index === 0 ? word.toLowerCase() : word.toUpperCase();
+    })
+    .replace(/\s+/g, '');
+}
+
+// Fonction pour convertir en PascalCase
+export function toPascalCase(str: string): string {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word) => {
+      return word.toUpperCase();
+    })
+    .replace(/\s+/g, '');
+} 

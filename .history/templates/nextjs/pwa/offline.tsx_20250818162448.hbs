@@ -1,0 +1,37 @@
+"use client";
+
+import { Container, Box, Typography, Button } from "@mui/material";
+import Link from "next/link";
+
+export default function OfflinePage() {
+  const containerStyles = {
+    minHeight: "100vh",
+    display: "grid",
+    placeItems: "center"
+  };
+
+  const textStyles = {
+    mb: 3
+  };
+
+  return (
+    <Container sx={containerStyles}>
+      <Box textAlign="center">
+        <Typography variant="h3" gutterBottom>
+          Mode hors ligne
+        </Typography>
+        <Typography variant="body1" sx={textStyles}>
+          Vous êtes actuellement hors ligne. Vérifiez votre connexion internet et réessayez.
+        </Typography>
+        <Button 
+          variant="contained" 
+          component={Link} 
+          href="/"
+          onClick={() => window.location.reload()}
+        >
+          Réessayer
+        </Button>
+      </Box>
+    </Container>
+  );
+} 

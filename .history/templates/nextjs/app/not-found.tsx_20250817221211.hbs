@@ -1,0 +1,68 @@
+{{#ifEquals nextjs.ui "mui"}}
+import { Container, Typography, Box, Button } from '@mui/material';
+import Link from 'next/link';
+{{/ifEquals}}
+
+{{#ifEquals nextjs.ui "shadcn"}}
+import Link from 'next/link';
+{{/ifEquals}}
+
+export default function NotFound() {
+  {{#ifEquals nextjs.ui "mui"}}
+  const boxStyles = {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center'
+  };
+
+  return (
+    <Container maxWidth="sm">
+      <Box sx={boxStyles}>
+        <Typography variant="h1" component="h1" gutterBottom>
+          404
+        </Typography>
+        <Typography variant="h4" component="h2" gutterBottom color="text.secondary">
+          Page non trouvée
+        </Typography>
+        <Typography variant="body1" paragraph>
+          Désolé, la page que vous recherchez n'existe pas.
+        </Typography>
+        <Button 
+          component={Link}
+          href="/"
+          variant="contained" 
+          size="large"
+          color="primary"
+        >
+          Retour à l'accueil
+        </Button>
+      </Box>
+    </Container>
+  );
+  {{/ifEquals}}
+
+  {{#ifEquals nextjs.ui "shadcn"}}
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+          Page non trouvée
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Désolé, la page que vous recherchez n'existe pas.
+        </p>
+        <Link 
+          href="/"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Retour à l'accueil
+        </Link>
+      </div>
+    </div>
+  );
+  {{/ifEquals}}
+} 

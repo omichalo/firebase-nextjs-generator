@@ -1,0 +1,165 @@
+#!/bin/bash
+
+# Script d'initialisation automatique pour {{project.name}}
+# Usage: ./init-project.sh [environment]
+# Exemple: ./init-project.sh dev
+
+set -e
+
+# Couleurs pour l'affichage
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
+PROJECT_NAME="{{project.name}}"
+FRONTEND_DIR="frontend"
+BACKEND_DIR="backend"
+DEFAULT_ENVIRONMENT="dev"
+
+# Fonction d'affichage coloré
+print_info() {
+    echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+# Fonction d'aide
+show_help() {
+    echo "🚀 Script d'initialisation automatique pour $PROJECT_NAME"
+    echo ""
+    echo "Usage: $0 [environment]"
+    echo ""
+    echo "Arguments:"
+    echo "  environment    Environnement Firebase à utiliser (dev, staging, prod)"
+    echo "                 Par défaut: $DEFAULT_ENVIRONMENT"
+    echo ""
+    echo "Exemples:"
+    echo "  $0              # Utilise l'environnement par défaut (dev)"
+    echo "  $0 dev         # Utilise l'environnement dev"
+    echo "  $0 staging     # Utilise l'environnement staging"
+    echo "  $0 prod        # Utilise l'environnement prod"
+    echo ""
+    echo "Ce script va:"
+    echo "  1. Installer les dépendances frontend"
+    echo "  2. Vérifier la connexion Firebase"
+    echo "  3. Configurer l'environnement Firebase"
+    echo "  4. Lancer l'application en mode développement"
+}
+
+# Vérifier les arguments
+ENVIRONMENT=${1:-$DEFAULT_ENVIRONMENT}
+
+# Validation de l'environnement
+if [[ ! "$ENVIRONMENT" =~ ^(dev|staging|prod)$ ]]; then
+    print_error "Environnement invalide: $ENVIRONMENT"
+    echo "Environnements valides: dev, staging, prod"
+    exit 1
+fi
+
+# Vérifier que nous sommes dans le bon répertoire
+if [[ ! -d "$FRONTEND_DIR" ]] || [[ ! -d "$BACKEND_DIR" ]]; then
+    print_error "Répertoires $FRONTEND_DIR ou $BACKEND_DIR non trouvés"
+    echo "Assurez-vous d'exécuter ce script depuis la racine du projet généré"
+    exit 1
+fi
+
+echo "🚀 Initialisation automatique de $PROJECT_NAME"
+echo "📍 Environnement: $ENVIRONMENT"
+echo ""
+
+# Étape 1: Installation des dépendances frontend
+print_info "Étape 1/4: Installation des dépendances frontend..."
+cd "$FRONTEND_DIR"
+
+if [[ ! -f "package.json" ]]; then
+    print_error "package.json non trouvé dans $FRONTEND_DIR"
+    exit 1
+fi
+
+print_info "Installation des dépendances npm..."
+npm install
+
+if [[ $? -eq 0 ]]; then
+    print_success "Dépendances frontend installées avec succès"
+else
+    print_error "Échec de l'installation des dépendances frontend"
+    exit 1
+fi
+
+cd ..
+
+# Étape 2: Vérification de Firebase CLI
+print_info "Étape 2/4: Vérification de Firebase CLI..."
+
+if ! command -v firebase &> /dev/null; then
+    print_error "Firebase CLI non installé"
+    echo "Installez-le avec: npm install -g firebase-tools"
+    exit 1
+fi
+
+print_success "Firebase CLI détecté: $(firebase --version)"
+
+# Étape 3: Configuration Firebase
+print_info "Étape 3/4: Configuration Firebase..."
+
+cd "$BACKEND_DIR"
+
+# Vérifier la connexion Firebase
+print_info "Vérification de la connexion Firebase..."
+if ! firebase projects:list &> /dev/null; then
+    print_warning "Utilisateur Firebase non connecté"
+    print_info "Connexion à Firebase..."
+    firebase login
+fi
+
+# Vérifier que le projet existe
+PROJECT_ID=$(grep -o '"projectId": "[^"]*"' .firebaserc | cut -d'"' -f4)
+if [[ -z "$PROJECT_ID" ]]; then
+    print_error "Project ID non trouvé dans .firebaserc"
+    exit 1
+fi
+
+print_info "Projet Firebase: $PROJECT_ID"
+
+# Basculer vers l'environnement
+print_info "Basculement vers l'environnement $ENVIRONMENT..."
+if firebase use "$ENVIRONMENT" &> /dev/null; then
+    print_success "Environnement $ENVIRONMENT activé"
+else
+    print_warning "Environnement $ENVIRONMENT non trouvé, création..."
+    firebase use --add "$PROJECT_ID" "$ENVIRONMENT"
+fi
+
+cd ..
+
+# Étape 4: Lancement de l'application
+print_info "Étape 4/4: Lancement de l'application..."
+
+cd "$FRONTEND_DIR"
+
+print_success "🎉 Initialisation terminée avec succès!"
+echo ""
+echo "📋 Prochaines étapes:"
+echo "   🌐 L'application va démarrer sur http://localhost:3000"
+echo "   🔥 Firebase est configuré pour l'environnement: $ENVIRONMENT"
+echo "   📱 Ouvrez un autre terminal pour les commandes Firebase"
+echo ""
+echo "🚀 Lancement de l'application..."
+echo "   Appuyez sur Ctrl+C pour arrêter"
+echo ""
+
+# Lancer l'application
+npm run dev 

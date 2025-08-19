@@ -1,0 +1,23 @@
+export default function Offline() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+      <div className="max-w-md">
+        <h1 className="text-4xl font-bold mb-4">📱 Mode Hors Ligne</h1>
+        <p className="text-lg mb-6">
+          Vous êtes actuellement hors ligne. Certaines fonctionnalités peuvent ne pas être disponibles.
+        </p>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            ✅ Pages déjà visitées disponibles
+          </p>
+          <p className="text-sm text-gray-600">
+            ❌ Nouvelles données non disponibles
+          </p>
+          <p className="text-sm text-gray-600">
+            🔄 Reconnectez-vous pour reprendre
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+} 

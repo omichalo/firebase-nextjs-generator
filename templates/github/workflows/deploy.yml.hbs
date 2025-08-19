@@ -1,0 +1,86 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+      services:
+        description: 'Services to deploy'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - hosting
+        - functions
+        - firestore
+        - storage
+
+env:
+  NODE_VERSION: '18'
+  FIREBASE_VERSION: '13.0.0'
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Setup Firebase CLI
+      uses: w9jds/firebase-action@master
+      with:
+        args: use ${{ github.event.inputs.environment }}
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        
+    - name: Deploy to Firebase
+      uses: w9jds/firebase-action@master
+      with:
+        args: |
+          deploy 
+          --only ${{ github.event.inputs.services == 'all' && 'hosting,functions,firestore,storage' || github.event.inputs.services }}
+          --project ${{ secrets[format('FIREBASE_PROJECT_{0}', upper(github.event.inputs.environment))] }}
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        
+    - name: Run post-deployment tests
+      run: |
+        echo "Running post-deployment tests..."
+        # Ajoutez ici vos tests post-déploiement
+        curl -f ${{ secrets[format('FIREBASE_HOSTING_URL_{0}', upper(github.event.inputs.environment))] }} || exit 1
+        
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "✅ Deployment to ${{ github.event.inputs.environment }} successful!"
+        echo "Services deployed: ${{ github.event.inputs.services }}"
+        
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Deployment to ${{ github.event.inputs.environment }} failed!"
+        echo "Please check the logs for more details." 

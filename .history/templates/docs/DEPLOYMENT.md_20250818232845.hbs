@@ -1,0 +1,165 @@
+# Guide de Déploiement - {{project.name}}
+
+## 🚀 Déploiement Automatique
+
+### Prérequis
+
+1. **Compte Firebase** configuré
+2. **GitHub Actions** activé sur le repository
+3. **Secrets GitHub** configurés :
+   - `FIREBASE_TOKEN`
+   - `FIREBASE_PROJECT_DEV`
+   - `FIREBASE_PROJECT_PROD`
+
+### Configuration des Secrets
+
+1. Allez dans votre repository GitHub
+2. **Settings** → **Secrets and variables** → **Actions**
+3. Ajoutez les secrets suivants :
+
+```bash
+FIREBASE_TOKEN=your_firebase_token_here
+FIREBASE_PROJECT_DEV=your-dev-project-id
+FIREBASE_PROJECT_PROD=your-prod-project-id
+```
+
+### Déploiement Automatique
+
+Le déploiement se fait automatiquement via GitHub Actions :
+
+- **Branche `develop`** → Déploiement en **développement**
+- **Branche `main`** → Déploiement en **production**
+
+## 🔧 Déploiement Manuel
+
+### 1. Build de l'Application
+
+```bash
+cd frontend
+npm run build
+```
+
+### 2. Déploiement Firebase
+
+```bash
+cd ../backend
+firebase login
+firebase use dev  # ou prod
+firebase deploy
+```
+
+### 3. Déploiement Frontend
+
+```bash
+cd ../frontend
+npm run export  # Si vous utilisez l'export statique
+# Ou déployez directement sur Vercel/Netlify
+```
+
+## 🌍 Environnements
+
+### Développement
+
+```bash
+# Configuration
+firebase use dev
+
+# Déploiement
+firebase deploy --only hosting,functions
+
+# Variables d'environnement
+cp .env.dev .env.local
+```
+
+### Production
+
+```bash
+# Configuration
+firebase use prod
+
+# Déploiement
+firebase deploy --only hosting,functions
+
+# Variables d'environnement
+cp .env.prod .env.local
+```
+
+## 📱 Déploiement PWA
+
+Si vous avez activé la fonctionnalité PWA :
+
+1. **Build de production** : `npm run build`
+2. **Vérification du manifest** : Vérifiez `public/manifest.json`
+3. **Service Worker** : Vérifiez `public/sw.js`
+4. **Déploiement** : `firebase deploy --only hosting`
+
+## 🔒 Sécurité
+
+### Règles Firestore
+
+```javascript
+// Exemple de règles sécurisées
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+### Règles Storage
+
+```javascript
+// Exemple de règles sécurisées
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /uploads/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+## 📊 Monitoring
+
+### Firebase Console
+
+- **Analytics** : Suivi des utilisateurs
+- **Performance** : Monitoring des performances
+- **Crashlytics** : Rapports de crash (si activé)
+
+### Sentry (si activé)
+
+- **Error Tracking** : Suivi des erreurs
+- **Performance Monitoring** : Métriques de performance
+- **Release Tracking** : Suivi des déploiements
+
+## 🚨 Rollback
+
+### Rollback Firebase
+
+```bash
+# Lister les déploiements
+firebase hosting:releases
+
+# Rollback vers une version précédente
+firebase hosting:rollback [version]
+```
+
+### Rollback GitHub Actions
+
+1. Allez dans l'onglet **Actions** de votre repository
+2. Trouvez le workflow de déploiement
+3. Cliquez sur **Re-run jobs** pour relancer un déploiement précédent
+
+## 📞 Support
+
+En cas de problème :
+
+1. **Logs Firebase** : `firebase functions:log`
+2. **Logs GitHub Actions** : Onglet Actions du repository
+3. **Documentation** : [Firebase Docs](https://firebase.google.com/docs)
+4. **Support** : [Firebase Support](https://firebase.google.com/support) 

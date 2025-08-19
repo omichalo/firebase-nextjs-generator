@@ -1,0 +1,210 @@
+# 🚀 {{project.name}}
+
+{{project.description}}
+
+## 📋 Table des matières
+
+- [🚀 Démarrage rapide](#-démarrage-rapide)
+- [🏗️ Structure du projet](#️-structure-du-projet)
+- [⚙️ Configuration](#️-configuration)
+- [🔧 Développement](#-développement)
+- [🚀 Déploiement](#-déploiement)
+- [📚 Documentation](#-documentation)
+
+## 🚀 Démarrage rapide
+
+### **Option 1: Initialisation automatique (Recommandé) 🎯**
+
+```bash
+# Depuis la racine du projet généré
+cd {{outputDir}}
+
+# Sur Linux/Mac
+chmod +x scripts/init-project.sh
+./scripts/init-project.sh dev
+
+# Sur Windows
+scripts\init-project.bat dev
+```
+
+Le script d'initialisation automatique va :
+1. ✅ Installer les dépendances frontend
+2. ✅ Vérifier la connexion Firebase
+3. ✅ Configurer l'environnement Firebase
+4. ✅ Lancer l'application en mode développement
+
+### **Option 2: Initialisation manuelle 🔧**
+
+```bash
+# 1. Installer les dépendances frontend
+cd {{outputDir}}/frontend
+npm install
+
+# 2. Configurer Firebase
+cd ../backend
+firebase login
+firebase use dev  # ou staging, prod
+
+# 3. Lancer l'application
+cd ../frontend
+npm run dev
+```
+
+## 🏗️ Structure du projet
+
+```
+{{project.name}}/
+├── frontend/                 # Application Next.js
+│   ├── src/
+│   │   ├── app/             # App Router (Next.js 15)
+│   │   ├── components/      # Composants réutilisables
+│   │   ├── hooks/           # Hooks personnalisés
+│   │   ├── stores/          # Gestion d'état
+│   │   ├── lib/             # Utilitaires et config
+│   │   ├── types/           # Types TypeScript
+│   │   └── utils/           # Fonctions utilitaires
+│   ├── public/              # Assets statiques
+│   └── tests/               # Tests unitaires et e2e
+├── backend/                  # Configuration Firebase
+│   ├── functions/            # Cloud Functions
+│   ├── firestore/            # Règles et index
+│   ├── storage/              # Règles de stockage
+│   └── scripts/              # Scripts de déploiement
+├── scripts/                  # Scripts d'initialisation
+│   ├── init-project.sh      # Script Linux/Mac
+│   └── init-project.bat     # Script Windows
+└── docs/                     # Documentation
+```
+
+## ⚙️ Configuration
+
+### **Environnements Firebase**
+
+Le projet supporte plusieurs environnements :
+
+- **dev** : Développement local
+- **staging** : Tests et validation
+- **prod** : Production
+
+```bash
+# Basculer entre les environnements
+cd backend
+firebase use dev      # Environnement de développement
+firebase use staging  # Environnement de staging
+firebase use prod     # Environnement de production
+```
+
+### **Variables d'environnement**
+
+```bash
+# .env.local
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+## 🔧 Développement
+
+### **Commandes disponibles**
+
+```bash
+# Frontend
+cd frontend
+npm run dev          # Développement local
+npm run build        # Build de production
+npm run start        # Démarrer en production
+npm run lint         # Linting
+npm run test         # Tests unitaires
+npm run type-check   # Vérification TypeScript
+
+# Backend
+cd backend
+firebase emulators:start  # Démarrer les émulateurs
+firebase deploy           # Déployer sur Firebase
+```
+
+### **Émulateurs Firebase**
+
+```bash
+cd backend
+firebase emulators:start
+
+# Les émulateurs seront disponibles sur :
+# - UI: http://localhost:4000
+# - Auth: http://localhost:9099
+# - Functions: http://localhost:5001
+# - Firestore: http://localhost:8080
+# - Storage: http://localhost:9199
+```
+
+## 🚀 Déploiement
+
+### **Déploiement manuel**
+
+```bash
+# 1. Build du frontend
+cd frontend
+npm run build
+
+# 2. Déploiement Firebase
+cd ../backend
+firebase deploy
+```
+
+### **Déploiement automatique**
+
+```bash
+# Utiliser les scripts de déploiement
+cd backend/scripts
+./deploy-{{environment}}.sh
+```
+
+## 📚 Documentation
+
+- [Guide d'installation](docs/INSTALLATION.md)
+- [Guide d'utilisation](docs/USAGE.md)
+- [Guide de déploiement](docs/DEPLOYMENT.md)
+- [Guide de personnalisation](docs/CUSTOMIZATION.md)
+- [Bonnes pratiques](docs/BEST_PRACTICES.md)
+- [Guide de maintenance](docs/MAINTENANCE.md)
+- [Guide de contribution](docs/CONTRIBUTING.md)
+- [Exemples de projets](docs/EXAMPLES.md)
+
+## 🆘 Support
+
+### **Problèmes courants**
+
+1. **Firebase CLI non installé**
+   ```bash
+   npm install -g firebase-tools
+   ```
+
+2. **Erreur de connexion Firebase**
+   ```bash
+   firebase login --reauth
+   ```
+
+3. **Dépendances manquantes**
+   ```bash
+   cd frontend
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+### **Obtenir de l'aide**
+
+- 📖 [Documentation complète](docs/)
+- 🐛 [Signaler un bug](https://github.com/your-username/firebase-nextjs-generator/issues)
+- 💡 [Proposer une fonctionnalité](https://github.com/your-username/firebase-nextjs-generator/issues)
+- 🤝 [Contribuer](docs/CONTRIBUTING.md)
+
+## 📄 License
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+---
+
+**⭐ Si ce projet vous aide, n'oubliez pas de le star sur GitHub !** 

@@ -1,0 +1,95 @@
+// Configuration Firebase Analytics
+export const ANALYTICS_CONFIG = {
+  // ID de mesure Google Analytics
+  measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '',
+  
+  // Configuration Firebase Analytics
+  firebaseConfig: {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
+  },
+  
+  // Événements personnalisés
+  customEvents: {
+    pageView: 'page_view',
+    userLogin: 'user_login',
+    userSignup: 'user_signup',
+    buttonClick: 'button_click',
+    formSubmit: 'form_submit',
+    error: 'error',
+  },
+  
+  // Paramètres par défaut
+  defaultParameters: {
+    app_name: '{{project.name}}',
+    app_version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+  },
+  
+  // Configuration du debug
+  debug: process.env.NODE_ENV === 'development',
+  
+  // Vérification du support
+  isSupported: () => {
+    if (typeof window === 'undefined') return false;
+    return 'gtag' in window || 'firebase' in window;
+  },
+  
+  // Initialisation
+  initialize: () => {
+    if (typeof window === 'undefined') return;
+    
+    // Google Analytics
+    if (ANALYTICS_CONFIG.measurementId) {
+      window.gtag = window.gtag || function() {
+        (window.gtag as any).q = (window.gtag as any).q || [];
+        (window.gtag as any).q.push(arguments);
+      };
+      
+      window.gtag('js', new Date());
+      window.gtag('config', ANALYTICS_CONFIG.measurementId, {
+        page_title: document.title,
+        page_location: window.location.href,
+        ...ANALYTICS_CONFIG.defaultParameters,
+      });
+    }
+  },
+  
+  // Tracking des pages
+  trackPageView: (url: string, title?: string) => {
+    if (typeof window === 'undefined') return;
+    
+    if (window.gtag) {
+      window.gtag('config', ANALYTICS_CONFIG.measurementId, {
+        page_title: title || document.title,
+        page_location: url,
+        ...ANALYTICS_CONFIG.defaultParameters,
+      });
+    }
+  },
+  
+  // Tracking des événements
+  trackEvent: (eventName: string, parameters?: Record<string, any>) => {
+    if (typeof window === 'undefined') return;
+    
+    if (window.gtag) {
+      window.gtag('event', eventName, {
+        ...ANALYTICS_CONFIG.defaultParameters,
+        ...parameters,
+      });
+    }
+  }
+};
+
+// Types globaux
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    firebase: any;
+  }
+} 

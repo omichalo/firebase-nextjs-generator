@@ -1,0 +1,95 @@
+import { useEffect, useState } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User
+} from 'firebase/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { auth } from '@/lib/firebase';
+import { RootState } from '@/stores/store';
+import { setUser, setLoading, setError, clearError } from '@/stores/auth-slice';
+
+export const useAuth = () => {
+  // Vérifier si nous sommes côté client
+  const isClient = typeof window !== 'undefined';
+  
+  const dispatch = isClient ? useDispatch() : null;
+  const { user, isLoading, error } = isClient ? useSelector((state: RootState) => state.auth) : { user: null, isLoading: false, error: null };
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!isClient || !dispatch) return;
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch(setUser({
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || undefined,
+          photoURL: user.photoURL || undefined,
+        }));
+      } else {
+        dispatch(setUser(null));
+      }
+      setIsInitialized(true);
+      dispatch(setLoading(false));
+    });
+
+    return () => unsubscribe();
+  }, [dispatch, isClient]);
+
+  const signIn = async (email: string, password: string) => {
+    if (!isClient || !dispatch) return;
+    
+    try {
+      dispatch(setLoading(true));
+      dispatch(clearError());
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      dispatch(setError(error instanceof Error ? error.message : 'Erreur de connexion'));
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    if (!isClient || !dispatch) return;
+    
+    try {
+      dispatch(setLoading(true));
+      dispatch(clearError());
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      dispatch(setError(error instanceof Error ? error.message : 'Erreur d\'inscription'));
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const logout = async () => {
+    if (!isClient || !dispatch) return;
+    
+    try {
+      dispatch(setLoading(true));
+      await signOut(auth);
+    } catch (error) {
+      dispatch(setError(error instanceof Error ? error.message : 'Erreur de déconnexion'));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return {
+    user,
+    isInitialized,
+    isLoading,
+    isAuthenticated: !!user,
+    signIn,
+    signUp,
+    logout,
+  };
+}; 

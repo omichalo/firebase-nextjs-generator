@@ -1,0 +1,70 @@
+import * as functions from 'firebase-functions'
+import * as admin from 'firebase-admin'
+
+// Initialize Firebase Admin
+admin.initializeApp()
+
+// Import auth triggers
+{{#each cloudFunctions.triggers}}
+{{#ifEquals type "auth"}}
+import { onUserCreated } from './auth/user-created'
+import { onUserDeleted } from './auth/user-deleted'
+{{/ifEquals}}
+{{/each}}
+
+// Import Firestore triggers
+{{#each cloudFunctions.triggers}}
+{{#ifEquals type "firestore"}}
+import { onDocumentCreated } from './firestore/document-created'
+import { onDocumentUpdated } from './firestore/document-updated'
+import { onDocumentDeleted } from './firestore/document-deleted'
+{{/ifEquals}}
+{{/each}}
+
+// Import HTTP functions
+import { healthCheck } from './https/health'
+import { apiHandler } from './https/api'
+
+// Import scheduled functions
+{{#each cloudFunctions.scheduled}}
+import { {{name}} } from './scheduled/{{name}}'
+{{/each}}
+
+// Export auth triggers
+{{#each cloudFunctions.triggers}}
+{{#ifEquals type "auth"}}
+{{#ifEquals event "user.create"}}
+export const userCreated = onUserCreated
+{{/ifEquals}}
+{{#ifEquals event "user.delete"}}
+export const userDeleted = onUserDeleted
+{{/ifEquals}}
+{{/ifEquals}}
+{{/each}}
+
+// Export Firestore triggers
+{{#each cloudFunctions.triggers}}
+{{#ifEquals type "firestore"}}
+{{#ifEquals event "document.create"}}
+export const documentCreated = onDocumentCreated
+{{/ifEquals}}
+{{#ifEquals event "document.update"}}
+export const documentUpdated = onDocumentUpdated
+{{/ifEquals}}
+{{#ifEquals event "document.delete"}}
+export const documentDeleted = onDocumentDeleted
+{{/ifEquals}}
+{{/ifEquals}}
+{{/each}}
+
+// Export HTTP functions
+export const health = healthCheck
+export const api = apiHandler
+
+// Export scheduled functions
+{{#each cloudFunctions.scheduled}}
+export const {{name}}Scheduled = functions.pubsub
+  .schedule('{{schedule}}')
+  .timeZone('{{timeZone}}')
+  .onRun({{name}})
+{{/each}} 

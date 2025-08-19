@@ -1,0 +1,223 @@
+import { useState, useEffect, useCallback } from 'react';
+import { FCM_CONFIG } from '@/lib/fcm-config';
+
+interface FCMToken {
+  token: string;
+  timestamp: number;
+}
+
+interface FCMNotification {
+  title: string;
+  body: string;
+  icon?: string;
+  badge?: string;
+  tag?: string;
+  data?: Record<string, any>;
+  actions?: Array<{
+    action: string;
+    title: string;
+    icon?: string;
+  }>;
+}
+
+export const useFCM = () => {
+  const [token, setToken] = useState<FCMToken | null>(null);
+  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [isSupported, setIsSupported] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Vérifier le support FCM
+  useEffect(() => {
+    const supported = FCM_CONFIG.isSupported();
+    setIsSupported(supported);
+    
+    if (supported) {
+      checkPermission();
+    }
+  }, []);
+
+  // Vérifier les permissions
+  const checkPermission = useCallback(async () => {
+    try {
+      const currentPermission = await FCM_CONFIG.checkPermission();
+      setPermission(currentPermission);
+      
+      if (currentPermission === 'granted') {
+        await requestToken();
+      }
+    } catch (err) {
+      setError('Erreur lors de la vérification des permissions');
+    }
+  }, []);
+
+  // Demander les permissions
+  const requestPermission = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const newPermission = await FCM_CONFIG.requestPermission();
+      setPermission(newPermission);
+      
+      if (newPermission === 'granted') {
+        await requestToken();
+      }
+      
+      return newPermission;
+    } catch (err) {
+      setError('Erreur lors de la demande de permissions');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Demander le token FCM
+  const requestToken = useCallback(async () => {
+    if (!isSupported || !FCM_CONFIG.publicKey) {
+      setError('FCM non supporté ou clé publique manquante');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Vérifier que le service worker est enregistré
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        
+        // Demander la permission pour les notifications
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error('Permission de notification refusée');
+        }
+
+        // Demander le token FCM
+        const messaging = await import('firebase/messaging');
+        const { getToken } = messaging;
+        
+        const currentToken = await getToken(registration, {
+          vapidKey: FCM_CONFIG.publicKey,
+        });
+
+        if (currentToken) {
+          const fcmToken: FCMToken = {
+            token: currentToken,
+            timestamp: Date.now(),
+          };
+          setToken(fcmToken);
+          
+          // Envoyer le token au serveur
+          await sendTokenToServer(currentToken);
+        } else {
+          setError('Impossible d\'obtenir le token FCM');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de l\'obtention du token');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isSupported]);
+
+  // Envoyer le token au serveur
+  const sendTokenToServer = async (fcmToken: string) => {
+    try {
+      await fetch('/api/fcm/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: fcmToken }),
+      });
+    } catch (err) {
+      console.warn('Impossible d\'envoyer le token au serveur:', err);
+    }
+  };
+
+  // Envoyer une notification locale
+  const showNotification = useCallback((notification: FCMNotification) => {
+    if (!isSupported || permission !== 'granted') {
+      setError('Notifications non autorisées');
+      return;
+    }
+
+    try {
+      const notificationOptions: NotificationOptions = {
+        body: notification.body,
+        icon: notification.icon || FCM_CONFIG.defaultNotificationOptions.icon,
+        badge: notification.badge || FCM_CONFIG.defaultNotificationOptions.badge,
+        tag: notification.tag,
+        data: notification.data,
+        actions: notification.actions,
+        vibrate: FCM_CONFIG.defaultNotificationOptions.vibrate,
+        requireInteraction: FCM_CONFIG.defaultNotificationOptions.requireInteraction,
+        silent: FCM_CONFIG.defaultNotificationOptions.silent,
+      };
+
+      new Notification(notification.title, notificationOptions);
+    } catch (err) {
+      setError('Erreur lors de l\'affichage de la notification');
+    }
+  }, [isSupported, permission]);
+
+  // Rafraîchir le token
+  const refreshToken = useCallback(async () => {
+    if (token && Date.now() - token.timestamp > 24 * 60 * 60 * 1000) {
+      // Token expiré (plus de 24h), le rafraîchir
+      await requestToken();
+    }
+  }, [token, requestToken]);
+
+  // Écouter les messages en arrière-plan
+  useEffect(() => {
+    if (!isSupported || !token) return;
+
+    const handleMessage = (payload: any) => {
+      const notification: FCMNotification = {
+        title: payload.notification?.title || 'Nouvelle notification',
+        body: payload.notification?.body || '',
+        icon: payload.notification?.icon,
+        data: payload.data,
+      };
+
+      showNotification(notification);
+    };
+
+    // Écouter les messages FCM
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'FCM_MESSAGE') {
+          handleMessage(event.data.payload);
+        }
+      });
+    }
+
+    return () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      }
+    };
+  }, [isSupported, token, showNotification]);
+
+  return {
+    // State
+    token: token?.token || null,
+    permission,
+    isSupported,
+    isLoading,
+    error,
+    
+    // Actions
+    requestPermission,
+    requestToken,
+    showNotification,
+    refreshToken,
+    
+    // Utilitaires
+    checkPermission,
+  };
+}; 

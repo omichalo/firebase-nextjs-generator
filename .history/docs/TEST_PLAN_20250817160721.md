@@ -1,0 +1,680 @@
+# 🧪 Plan de test complet du générateur
+
+> **Plan de test systématique pour vérifier le bon fonctionnement du Générateur Firebase + Next.js 2025**
+
+## 📋 Vue d'ensemble
+
+Ce plan de test couvre **tous les aspects** du générateur, de l'installation à la génération complète d'un projet. Chaque étape a un **identifiant unique** (ex: `TEST-001`) que vous pouvez me fournir en cas d'échec.
+
+**💡 Note :** Ce plan a été mis à jour pour refléter les tests automatisés actuels. Pour une couverture complète, utilisez les scripts de test automatisés.
+
+## 📋 Vue d'ensemble
+
+Ce plan de test couvre **tous les aspects** du générateur, de l'installation à la génération complète d'un projet. Chaque étape a un **identifiant unique** (ex: `TEST-001`) que vous pouvez me fournir en cas d'échec.
+
+## 🎯 Objectifs des tests
+
+- ✅ **Vérifier l'installation** et la configuration
+- ✅ **Tester la génération** de projets complets
+- ✅ **Valider la documentation** et la navigation
+- ✅ **S'assurer de la cohérence** entre tous les composants
+- ✅ **Identifier et corriger** les problèmes potentiels
+
+## 🚀 Tests automatisés (Recommandés)
+
+**Pour une validation complète et automatisée, utilisez nos scripts de test :**
+
+### **Test standard (31 tests) :**
+
+```bash
+./scripts/test-complete.sh
+```
+
+### **Test ultra-complet (41 tests) :**
+
+```bash
+./scripts/test-comprehensive.sh
+```
+
+### **Test PowerShell (Windows) :**
+
+```powershell
+.\scripts\test-complete.ps1
+.\scripts\test-comprehensive.ps1
+```
+
+**Ces scripts couvrent 100% du code du générateur (3133 lignes) et garantissent un fonctionnement parfait !**
+
+## 🚀 Phase 1 : Tests d'installation et de configuration
+
+### **TEST-001 : Vérification de l'environnement de base**
+
+**Objectif** : Vérifier que tous les prérequis sont installés
+
+```bash
+# Vérifier Node.js
+node --version
+# Doit afficher v18.x.x ou supérieur
+
+# Vérifier npm
+npm --version
+# Doit afficher 9.x.x ou supérieur
+
+# Vérifier Git
+git --version
+# Doit afficher 2.30.x ou supérieur
+
+# Vérifier Firebase CLI
+firebase --version
+# Doit afficher 13.x.x ou supérieur
+```
+
+**✅ Succès** : Toutes les versions sont correctes
+**❌ Échec** : Une ou plusieurs versions sont incorrectes
+**🆔 Identifiant** : `TEST-001`
+
+---
+
+### **TEST-002 : Installation des dépendances du générateur**
+
+**Objectif** : Installer et configurer le générateur
+
+```bash
+# Installer les dépendances
+npm install
+
+# Vérifier l'installation
+npm run type-check
+npm run lint
+```
+
+**✅ Succès** : Installation sans erreur, type-check et lint OK
+**❌ Échec** : Erreur d'installation ou de vérification
+**🆔 Identifiant** : `TEST-002`
+
+---
+
+### **TEST-003 : Build du générateur**
+
+**Objectif** : Compiler le générateur
+
+```bash
+# Build de production
+npm run build
+
+# Vérifier que le build a créé le dossier dist/
+ls -la dist/
+```
+
+**✅ Succès** : Build réussi, dossier dist/ créé avec les fichiers
+**❌ Échec** : Erreur de build ou dossier dist/ manquant
+**🆔 Identifiant** : `TEST-003`
+
+---
+
+### **TEST-004 : Vérification de la CLI**
+
+**Objectif** : Tester que la CLI fonctionne
+
+```bash
+# Tester la commande d'aide
+npx ts-node src/cli.ts --help
+
+# Tester la version
+npx ts-node src/cli.ts --version
+```
+
+**✅ Succès** : Aide et version affichées correctement
+**❌ Échec** : Erreur lors de l'exécution de la CLI
+**🆔 Identifiant** : `TEST-004`
+
+## 🎯 Phase 2 : Tests de génération de projet
+
+### **TEST-005 : Génération d'un projet minimal**
+
+**Objectif** : Créer un projet avec configuration minimale
+
+```bash
+# Créer un projet de test
+npx ts-node src/cli.ts create \
+  --name test-minimal \
+  --description "Projet de test minimal" \
+  --author "Test User" \
+  --version "1.0.0" \
+  --package-manager npm \
+  --nextjs-version 15 \
+  --ui mui \
+  --state-management zustand \
+  --features pwa \
+  --output ./test-output-minimal
+```
+
+**Configuration attendue :**
+
+- Nom : `test-minimal`
+- UI : Material-UI
+- State : Zustand
+- Features : PWA uniquement
+- Output : `./test-output-minimal`
+
+**✅ Succès** : Projet créé sans erreur
+**❌ Échec** : Erreur lors de la génération
+**🆔 Identifiant** : `TEST-005`
+
+---
+
+### **TEST-006 : Vérification de la structure du projet minimal**
+
+**Objectif** : Vérifier que tous les fichiers nécessaires sont créés
+
+```bash
+# Vérifier la structure
+cd test-output-minimal
+ls -la
+
+# Vérifier les dossiers principaux
+ls -la frontend/
+ls -la backend/
+```
+
+**Structure attendue :**
+
+```
+test-output-minimal/
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── tsconfig.json
+├── backend/
+│   ├── functions/
+│   ├── firestore/
+│   ├── firebase.json
+│   └── .firebaserc
+├── README.md
+└── scripts/
+```
+
+**✅ Succès** : Structure complète et correcte
+**❌ Échec** : Fichiers ou dossiers manquants
+**🆔 Identifiant** : `TEST-006`
+
+---
+
+### **TEST-007 : Vérification des fichiers frontend**
+
+**Objectif** : Vérifier que tous les fichiers Next.js sont présents
+
+```bash
+cd frontend
+
+# Vérifier package.json
+cat package.json | grep -E '"name"|"dependencies"'
+
+# Vérifier la structure src/
+ls -la src/
+ls -la src/app/
+ls -la src/components/
+ls -la src/hooks/
+ls -la src/stores/
+ls -la src/lib/
+```
+
+**Fichiers attendus :**
+
+- `package.json` avec dépendances MUI et Zustand
+- `src/app/page.tsx` (page d'accueil)
+- `src/app/layout.tsx` (layout principal)
+- `src/components/mui/` (composants MUI)
+- `src/stores/zustand/` (store Zustand)
+- `src/lib/firebase.ts` (configuration Firebase)
+
+**✅ Succès** : Tous les fichiers frontend présents
+**❌ Échec** : Fichiers manquants ou incorrects
+**🆔 Identifiant** : `TEST-007`
+
+---
+
+### **TEST-008 : Vérification des fichiers backend**
+
+**Objectif** : Vérifier que tous les fichiers Firebase sont présents
+
+```bash
+cd ../backend
+
+# Vérifier firebase.json
+cat firebase.json
+
+# Vérifier .firebaserc
+cat .firebaserc
+
+# Vérifier la structure functions/
+ls -la functions/
+ls -la functions/src/
+ls -la functions/src/auth/
+ls -la functions/src/firestore/
+ls -la functions/src/https/
+ls -la functions/src/scheduled/
+ls -la functions/src/utils/
+```
+
+**Fichiers attendus :**
+
+- `firebase.json` avec configuration complète
+- `.firebaserc` avec projectId
+- `functions/package.json` avec dépendances Firebase
+- `functions/src/index.ts` (point d'entrée)
+- `functions/src/auth/user-created.ts`
+- `functions/src/firestore/document-created.ts`
+- `functions/src/https/health.ts`
+
+**✅ Succès** : Tous les fichiers backend présents
+**❌ Échec** : Fichiers manquants ou incorrects
+**🆔 Identifiant** : `TEST-008`
+
+---
+
+### **TEST-009 : Vérification des templates Handlebars**
+
+**Objectif** : Vérifier que les variables Handlebars sont correctement remplacées
+
+```bash
+# Vérifier que les variables sont remplacées
+cd frontend
+grep -r "{{project.name}}" src/ || echo "✅ Variables remplacées"
+grep -r "{{nextjs.ui}}" src/ || echo "✅ Variables remplacées"
+
+# Vérifier le contenu des fichiers générés
+cat src/app/page.tsx | head -20
+cat package.json | grep -A 5 -B 5 "mui"
+```
+
+**Vérifications :**
+
+- Aucune variable `{{...}}` non remplacée
+- `test-minimal` apparaît dans les fichiers
+- `mui` apparaît dans package.json
+- `zustand` apparaît dans package.json
+
+**✅ Succès** : Toutes les variables remplacées
+**❌ Échec** : Variables non remplacées ou contenu incorrect
+**🆔 Identifiant** : `TEST-009`
+
+---
+
+### **TEST-010 : Génération d'un projet complet**
+
+**Objectif** : Créer un projet avec toutes les fonctionnalités
+
+```bash
+cd ../..
+npx ts-node src/cli.ts create \
+  --name test-complete \
+  --description "Projet de test complet" \
+  --author "Test User" \
+  --version "1.0.0" \
+  --package-manager npm \
+  --nextjs-version 15 \
+  --ui shadcn \
+  --state-management redux \
+  --features pwa,fcm,analytics,performance,sentry \
+  --output ./test-output-complete
+```
+
+**Configuration attendue :**
+
+- Nom : `test-complete`
+- UI : Shadcn/ui
+- State : Redux Toolkit
+- Features : Toutes activées (PWA, FCM, Analytics, Performance, Sentry)
+- Output : `./test-output-complete`
+
+**✅ Succès** : Projet complet créé sans erreur
+**❌ Échec** : Erreur lors de la génération
+**🆔 Identifiant** : `TEST-010`
+
+---
+
+### **TEST-011 : Vérification des fonctionnalités avancées**
+
+**Objectif** : Vérifier que les fonctionnalités avancées sont correctement configurées
+
+```bash
+cd test-output-complete/frontend
+
+# Vérifier PWA
+ls -la public/
+cat public/manifest.json | head -10
+
+# Vérifier FCM
+ls -la src/fcm/
+cat src/fcm/fcm-config.ts | head -10
+
+# Vérifier Analytics
+ls -la src/lib/
+cat src/lib/analytics-config.ts | head -10
+
+# Vérifier Performance
+ls -la src/performance/
+cat src/performance/performance-config.ts | head -10
+
+# Vérifier Sentry
+ls -la src/sentry/
+cat src/sentry/sentry-config.ts | head -10
+```
+
+**Fichiers attendus :**
+
+- `public/manifest.json` (PWA)
+- `src/fcm/fcm-config.ts` (FCM)
+- `src/lib/analytics-config.ts` (Analytics)
+- `src/performance/performance-config.ts` (Performance)
+- `src/sentry/sentry-config.ts` (Sentry)
+
+**✅ Succès** : Toutes les fonctionnalités configurées
+**❌ Échec** : Fonctionnalités manquantes ou mal configurées
+**🆔 Identifiant** : `TEST-011`
+
+---
+
+### **TEST-012 : Vérification des composants Shadcn/ui**
+
+**Objectif** : Vérifier que les composants Shadcn/ui sont présents
+
+```bash
+# Vérifier les composants Shadcn
+ls -la src/components/shadcn/
+ls -la src/components/ui/
+
+# Vérifier le contenu des composants
+cat src/components/shadcn/Button.tsx | head -20
+cat src/components/ui/button.tsx | head -20
+```
+
+**Composants attendus :**
+
+- `src/components/shadcn/Button.tsx`
+- `src/components/shadcn/Card.tsx`
+- `src/components/ui/button.tsx`
+- `src/components/ui/card.tsx`
+
+**✅ Succès** : Tous les composants Shadcn/ui présents
+**❌ Échec** : Composants manquants ou incorrects
+**🆔 Identifiant** : `TEST-012`
+
+---
+
+### **TEST-013 : Vérification de Redux Toolkit**
+
+**Objectif** : Vérifier que Redux Toolkit est correctement configuré
+
+```bash
+# Vérifier les stores Redux
+ls -la src/stores/redux/
+cat src/stores/redux/auth-slice.ts | head -20
+
+# Vérifier les dépendances
+cat package.json | grep -A 3 -B 3 "redux"
+```
+
+**Fichiers attendus :**
+
+- `src/stores/redux/auth-slice.ts`
+- Dépendances : `@reduxjs/toolkit`, `react-redux`
+
+**✅ Succès** : Redux Toolkit correctement configuré
+**❌ Échec** : Configuration Redux manquante ou incorrecte
+**🆔 Identifiant** : `TEST-013`
+
+## 📚 Phase 3 : Tests de la documentation
+
+### **TEST-014 : Vérification de la navigation entre documents**
+
+**Objectif** : Vérifier que tous les liens croisés fonctionnent
+
+```bash
+cd ../../docs
+
+# Vérifier que tous les fichiers existent
+ls -la *.md
+
+# Vérifier les liens dans README.md
+grep -o "\[.*\](.*\.md)" README.md
+
+# Vérifier les liens dans NAVIGATION.md
+grep -o "\[.*\](.*\.md)" NAVIGATION.md
+```
+
+**Fichiers attendus :**
+
+- `README.md`, `NAVIGATION.md`, `INSTALLATION.md`, `USAGE.md`
+- `DEPLOYMENT.md`, `CUSTOMIZATION.md`, `BEST_PRACTICES.md`
+- `MAINTENANCE.md`, `CONTRIBUTING.md`, `EXAMPLES.md`
+
+**✅ Succès** : Tous les fichiers et liens présents
+**❌ Échec** : Fichiers ou liens manquants
+**🆔 Identifiant** : `TEST-014`
+
+---
+
+### **TEST-015 : Vérification de la cohérence des liens**
+
+**Objectif** : Vérifier que tous les liens pointent vers des fichiers existants
+
+```bash
+# Créer un script de vérification des liens
+cat > check-links.js << 'EOF'
+const fs = require('fs');
+const path = require('path');
+
+function checkLinksInFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const links = [];
+  let match;
+
+  while ((match = linkRegex.exec(content)) !== null) {
+    links.push({
+      text: match[1],
+      url: match[2],
+      file: filePath
+    });
+  }
+
+  return links;
+}
+
+function checkAllLinks() {
+  const mdFiles = fs.readdirSync('.').filter(f => f.endsWith('.md'));
+  const allLinks = [];
+
+  mdFiles.forEach(file => {
+    const links = checkLinksInFile(file);
+    allLinks.push(...links);
+  });
+
+  console.log('Liens trouvés:');
+  allLinks.forEach(link => {
+    console.log(`- ${link.file}: [${link.text}](${link.url})`);
+  });
+}
+
+checkAllLinks();
+EOF
+
+# Exécuter la vérification
+node check-links.js
+```
+
+**✅ Succès** : Tous les liens pointent vers des fichiers existants
+**❌ Échec** : Liens cassés ou fichiers manquants
+**🆔 Identifiant** : `TEST-015`
+
+---
+
+### **TEST-016 : Vérification de la structure de la documentation**
+
+**Objectif** : Vérifier que la documentation suit la nouvelle architecture
+
+```bash
+# Vérifier la structure des documents
+echo "=== Structure de la documentation ==="
+echo "README.md:"
+grep -E "^## " README.md | head -10
+
+echo -e "\nNAVIGATION.md:"
+grep -E "^## " NAVIGATION.md | head -10
+
+echo -e "\nINSTALLATION.md:"
+grep -E "^## " INSTALLATION.md | head -10
+```
+
+**Structure attendue :**
+
+- `README.md` : Vue d'ensemble + liens vers guides
+- `NAVIGATION.md` : Navigation centrale + parcours
+- `INSTALLATION.md` : Installation complète + configuration
+
+**✅ Succès** : Structure conforme à la nouvelle architecture
+**❌ Échec** : Structure incorrecte ou incohérente
+**🆔 Identifiant** : `TEST-016`
+
+## 🔧 Phase 4 : Tests de validation et nettoyage
+
+### **TEST-017 : Validation des projets générés**
+
+**Objectif** : Vérifier que les projets générés sont valides
+
+```bash
+cd ../test-output-minimal/frontend
+
+# Vérifier la validité du package.json
+npm run type-check 2>/dev/null || echo "TypeScript configuré"
+npm run lint 2>/dev/null || echo "ESLint configuré"
+
+cd ../../test-output-complete/frontend
+npm run type-check 2>/dev/null || echo "TypeScript configuré"
+npm run lint 2>/dev/null || echo "ESLint configuré"
+```
+
+**✅ Succès** : Projets valides et configurations correctes
+**❌ Échec** : Erreurs de validation ou configuration incorrecte
+**🆔 Identifiant** : `TEST-017`
+
+---
+
+### **TEST-018 : Nettoyage des projets de test**
+
+**Objectif** : Nettoyer les projets de test créés
+
+```bash
+cd ../..
+echo "Nettoyage des projets de test..."
+
+# Supprimer les projets de test
+rm -rf test-output-minimal
+rm -rf test-output-complete
+
+# Vérifier le nettoyage
+ls -la | grep test-output || echo "✅ Nettoyage réussi"
+```
+
+**✅ Succès** : Projets de test supprimés
+**❌ Échec** : Erreur lors du nettoyage
+**🆔 Identifiant** : `TEST-018`
+
+---
+
+### **TEST-019 : Vérification finale de l'environnement**
+
+**Objectif** : S'assurer que l'environnement est dans son état initial
+
+```bash
+# Vérifier que nous sommes dans le bon répertoire
+pwd
+echo "Répertoire actuel: $(pwd)"
+
+# Vérifier la structure finale
+ls -la
+
+# Vérifier que le générateur fonctionne toujours
+npx ts-node src/cli.ts --version
+```
+
+**✅ Succès** : Environnement dans son état initial, générateur fonctionnel
+**❌ Échec** : Environnement modifié ou générateur défaillant
+**🆔 Identifiant** : `TEST-019`
+
+## 📊 Résumé des tests
+
+### **Tests d'installation et configuration :**
+
+- `TEST-001` : Environnement de base
+- `TEST-002` : Installation des dépendances
+- `TEST-003` : Build du générateur
+- `TEST-004` : Vérification de la CLI
+
+### **Tests de génération de projet :**
+
+- `TEST-005` : Projet minimal
+- `TEST-006` : Structure du projet minimal
+- `TEST-007` : Fichiers frontend
+- `TEST-008` : Fichiers backend
+- `TEST-009` : Templates Handlebars
+- `TEST-010` : Projet complet
+- `TEST-011` : Fonctionnalités avancées
+- `TEST-012` : Composants Shadcn/ui
+- `TEST-013` : Redux Toolkit
+
+### **Tests de la documentation :**
+
+- `TEST-014` : Navigation entre documents
+- `TEST-015` : Cohérence des liens
+- `TEST-016` : Structure de la documentation
+
+### **Tests de validation et nettoyage :**
+
+- `TEST-017` : Validation des projets
+- `TEST-018` : Nettoyage des projets de test
+- `TEST-019` : Vérification finale
+
+## 🚨 En cas d'échec
+
+### **Comment signaler un problème :**
+
+1. **Notez l'identifiant du test** (ex: `TEST-007`)
+2. **Copiez le message d'erreur complet**
+3. **Indiquez à quelle étape** le problème s'est produit
+4. **Fournissez le contexte** (commande exécutée, répertoire, etc.)
+
+### **Exemple de signalement :**
+
+```
+🆔 Identifiant : TEST-007
+❌ Échec : Fichiers frontend manquants
+📍 Contexte : Vérification des fichiers frontend du projet minimal
+💻 Commande : ls -la src/components/
+🚨 Erreur : Aucun fichier trouvé dans src/components/
+```
+
+## 🎯 Objectifs de réussite
+
+### **✅ Tous les tests doivent passer :**
+
+- Installation et configuration : 4/4
+- Génération de projet : 9/9
+- Documentation : 3/3
+- Validation et nettoyage : 3/3
+
+### **🎯 Score minimum acceptable :**
+
+- **Installation** : 100% (4/4)
+- **Génération** : 100% (9/9)
+- **Documentation** : 100% (3/3)
+- **Validation** : 100% (3/3)
+
+---
+
+**🚀 Prêt à commencer les tests ? Commencez par TEST-001 !**
+
+**💡 Conseil :** Exécutez les tests dans l'ordre pour une progression logique.

@@ -1,0 +1,58 @@
+'use client';
+
+import { Container, Box, Typography, Button } from '@mui/material';
+import Link from 'next/link';
+
+export default function OfflinePage() {
+  return (
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          textAlign: 'center',
+          gap: 3,
+        }}
+      >
+        <Typography variant="h3" component="h1" gutterBottom>
+          🔌 Mode Hors Ligne
+        </Typography>
+        
+        <Typography variant="body1" color="text.secondary" paragraph>
+          Vous êtes actuellement hors ligne. Certaines fonctionnalités peuvent ne pas être disponibles.
+        </Typography>
+        
+        <Typography variant="body2" color="text.secondary" paragraph>
+          Vérifiez votre connexion internet et réessayez.
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            onClick={() => window.location.reload()}
+            sx={{ minWidth: 120 }}
+          >
+            Actualiser
+          </Button>
+          
+          <Link href="/" passHref>
+            <Button
+              variant="outlined"
+              component="a"
+              sx={{ minWidth: 120 }}
+            >
+              Accueil
+            </Button>
+          </Link>
+        </Box>
+        
+        <Typography variant="caption" color="text.disabled" sx={{ mt: 4 }}>
+          Cette page est accessible même sans connexion internet grâce au mode PWA.
+        </Typography>
+      </Box>
+    </Container>
+  );
+} 

@@ -1,0 +1,18 @@
+{
+  "projects": {
+    {{#each firebase.environments}}
+    "{{name}}": "{{projectId}}"{{#unless @last}},{{/unless}}
+    {{/each}}
+  },
+  "targets": {
+    {{#each firebase.environments}}
+    "{{projectId}}": {
+      "hosting": {
+        "{{name}}": [
+          "{{projectId}}"
+        ]
+      }
+    }{{#unless @last}},{{/unless}}
+    {{/each}}
+  }
+} 

@@ -1,0 +1,113 @@
+import { useEffect, useCallback } from 'react';
+import { ANALYTICS_CONFIG } from '@/lib/analytics-config';
+
+export const useAnalytics = () => {
+  // Initialiser Analytics au montage du composant
+  useEffect(() => {
+    if (ANALYTICS_CONFIG.isSupported()) {
+      ANALYTICS_CONFIG.initialize();
+    }
+  }, []);
+
+  // Tracking des pages
+  const trackPageView = useCallback((url: string, title?: string) => {
+    if (ANALYTICS_CONFIG.isSupported()) {
+      ANALYTICS_CONFIG.trackPageView(url, title);
+    }
+  }, []);
+
+  // Tracking des événements
+  const trackEvent = useCallback((eventName: string, parameters?: Record<string, any>) => {
+    if (ANALYTICS_CONFIG.isSupported()) {
+      ANALYTICS_CONFIG.trackEvent(eventName, parameters);
+    }
+  }, []);
+
+  // Tracking des clics sur boutons
+  const trackButtonClick = useCallback((buttonName: string, location?: string) => {
+    trackEvent(ANALYTICS_CONFIG.customEvents.buttonClick, {
+      button_name: buttonName,
+      location: location || 'unknown',
+    });
+  }, [trackEvent]);
+
+  // Tracking des soumissions de formulaires
+  const trackFormSubmit = useCallback((formName: string, success: boolean) => {
+    trackEvent(ANALYTICS_CONFIG.customEvents.formSubmit, {
+      form_name: formName,
+      success,
+    });
+  }, [trackEvent]);
+
+  // Tracking des connexions utilisateur
+  const trackUserLogin = useCallback((method: string, success: boolean) => {
+    trackEvent(ANALYTICS_CONFIG.customEvents.userLogin, {
+      method,
+      success,
+    });
+  }, [trackEvent]);
+
+  // Tracking des inscriptions utilisateur
+  const trackUserSignup = useCallback((method: string, success: boolean) => {
+    trackEvent(ANALYTICS_CONFIG.customEvents.userSignup, {
+      method,
+      success,
+    });
+  }, [trackEvent]);
+
+  // Tracking des erreurs
+  const trackError = useCallback((errorType: string, errorMessage: string, context?: Record<string, any>) => {
+    trackEvent(ANALYTICS_CONFIG.customEvents.error, {
+      error_type: errorType,
+      error_message: errorMessage,
+      ...context,
+    });
+  }, [trackEvent]);
+
+  // Tracking des performances
+  const trackPerformance = useCallback((metricName: string, value: number, unit?: string) => {
+    trackEvent('performance_metric', {
+      metric_name: metricName,
+      value,
+      unit: unit || 'ms',
+    });
+  }, [trackEvent]);
+
+  // Tracking des interactions utilisateur
+  const trackUserInteraction = useCallback((interactionType: string, element: string, context?: Record<string, any>) => {
+    trackEvent('user_interaction', {
+      interaction_type: interactionType,
+      element,
+      ...context,
+    });
+  }, [trackEvent]);
+
+  // Tracking des conversions
+  const trackConversion = useCallback((conversionType: string, value?: number, currency?: string) => {
+    trackEvent('conversion', {
+      conversion_type: conversionType,
+      value,
+      currency: currency || 'USD',
+    });
+  }, [trackEvent]);
+
+  return {
+    // Configuration
+    isSupported: ANALYTICS_CONFIG.isSupported(),
+    
+    // Méthodes de tracking
+    trackPageView,
+    trackEvent,
+    trackButtonClick,
+    trackFormSubmit,
+    trackUserLogin,
+    trackUserSignup,
+    trackError,
+    trackPerformance,
+    trackUserInteraction,
+    trackConversion,
+    
+    // Configuration
+    config: ANALYTICS_CONFIG,
+  };
+}; 

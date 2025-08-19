@@ -1,0 +1,20 @@
+"use client";
+
+import Link from "next/link";
+import { Container, Box, Typography, Button } from "@mui/material";
+
+export default function NotFoundClient() {
+  return (
+    <Container sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
+      <Box textAlign="center">
+        <Typography variant="h3" gutterBottom>Page introuvable</Typography>
+        <Typography variant="body1" sx={{ mb: 3 }}>
+          La page que vous cherchez n'existe pas ou a été déplacée.
+        </Typography>
+        <Button variant="contained" component={Link} href="/">
+          Retour à l'accueil
+        </Button>
+      </Box>
+    </Container>
+  );
+} 

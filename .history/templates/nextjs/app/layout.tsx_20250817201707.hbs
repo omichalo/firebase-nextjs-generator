@@ -1,0 +1,61 @@
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+
+{{#ifEquals nextjs.ui "mui"}}
+import ThemeRegistry from '@/components/mui/ThemeRegistry'
+{{/ifEquals}}
+
+{{#ifEquals nextjs.stateManagement "zustand"}}
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+{{/ifEquals}}
+
+{{#if nextjs.features.sentry}}
+import * as Sentry from '@sentry/nextjs'
+{{/if}}
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: '{{project.name}}',
+  description: '{{project.description}}',
+  {{#if nextjs.features.pwa}}
+  manifest: '/manifest.json',
+  {{/if}}
+}
+
+{{#ifEquals nextjs.stateManagement "zustand"}}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+    },
+  },
+})
+{{/ifEquals}}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="fr">
+      <body className={inter.className}>
+        {{#ifEquals nextjs.stateManagement "zustand"}}
+        <QueryClientProvider client={queryClient}>
+        {{/ifEquals}}
+        {{#ifEquals nextjs.ui "mui"}}
+        <ThemeRegistry>
+        {{/ifEquals}}
+          {children}
+        {{#ifEquals nextjs.ui "mui"}}
+        </ThemeRegistry>
+        {{/ifEquals}}
+        {{#ifEquals nextjs.stateManagement "zustand"}}
+        </QueryClientProvider>
+        {{/ifEquals}}
+      </body>
+    </html>
+  )
+} 

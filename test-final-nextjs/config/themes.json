@@ -1,0 +1,11 @@
+{
+  "themes": [
+    {
+      "name": "default",
+      "type": "mui",
+      "variables": {},
+      "darkMode": true
+    }
+  ],
+  "defaultTheme": "default"
+}

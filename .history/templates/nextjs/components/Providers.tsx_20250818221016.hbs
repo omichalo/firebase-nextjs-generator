@@ -1,0 +1,33 @@
+"use client";
+
+import { ReactNode, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MUIWrapper } from '@/components/MUIWrapper';
+{{#if (eq nextjs.stateManagement "redux")}}
+import { Provider as ReduxProvider } from 'react-redux';
+import { store } from '@/stores/store';
+{{else}}
+// Zustand est utilisé par défaut, pas besoin d'import supplémentaire
+{{/if}}
+
+export default function Providers({ children }: { children: ReactNode }) {
+  // ✅ Instances créées côté client uniquement
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { staleTime: 60 * 1000 } },
+      })
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {{#if (eq nextjs.stateManagement "redux")}}
+      <ReduxProvider store={store}>
+        <MUIWrapper>{children}</MUIWrapper>
+      </ReduxProvider>
+      {{else}}
+      <MUIWrapper>{children}</MUIWrapper>
+      {{/if}}
+    </QueryClientProvider>
+  );
+} 

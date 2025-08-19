@@ -1,0 +1,28 @@
+/** @type {import('next').Config} */
+const nextConfig = {
+  // Configuration pour Firebase Hosting (export statique)
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
+  
+  // Configuration des images (désactivée pour export statique)
+  images: {
+    unoptimized: true,
+  },
+  // Configuration TypeScript
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // Configuration ESLint
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  {{#if nextjs.features.sentry}}
+  // Configuration Sentry
+  sentry: {
+    hideSourceMaps: true,
+  },
+  {{/if}}
+};
+
+module.exports = nextConfig; 

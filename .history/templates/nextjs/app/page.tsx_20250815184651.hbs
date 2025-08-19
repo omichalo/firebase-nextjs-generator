@@ -1,0 +1,58 @@
+{{#ifEquals nextjs.ui "mui"}}
+import { Container, Typography, Box, Button } from '@mui/material'
+{{/ifEquals}}
+
+{{#ifEquals nextjs.ui "shadcn"}}
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+{{/ifEquals}}
+
+export default function Home() {
+  return (
+    <main>
+      {{#ifEquals nextjs.ui "mui"}}
+      <Container maxWidth="lg">
+        <Box sx={{{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', textAlign: 'center' }}}>
+          <Typography variant="h2" component="h1" gutterBottom>
+            Bienvenue sur {{project.name}}
+          </Typography>
+          <Typography variant="h5" component="h2" gutterBottom color="text.secondary">
+            {{project.description}}
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Votre application Firebase + Next.js est prête !
+          </Typography>
+          <Button variant="contained" size="large">
+            Commencer
+          </Button>
+        </Box>
+      </Container>
+      {{/ifEquals}}
+      
+      {{#ifEquals nextjs.ui "shadcn"}}
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center justify-center min-h-screen text-center">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold">
+                Bienvenue sur {{project.name}}
+              </CardTitle>
+              <CardDescription className="text-lg">
+                {{project.description}}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                Votre application Firebase + Next.js est prête !
+              </p>
+              <Button className="w-full">
+                Commencer
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      {{/ifEquals}}
+    </main>
+  )
+} 

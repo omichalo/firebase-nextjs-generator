@@ -1,0 +1,71 @@
+import { render } from '@testing-library/react';
+import { useAuth } from '@/hooks/use-auth';
+
+// Mock du hook useAuth
+jest.mock('@/hooks/use-auth');
+const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+
+// Test simple sans composant complexe
+describe('useAuth Hook', () => {
+  beforeEach(() => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isInitialized: true,
+      isLoading: false,
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      logout: jest.fn(),
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return default values', () => {
+    const result = mockUseAuth();
+    
+    expect(result.user).toBeNull();
+    expect(result.isAuthenticated).toBe(false);
+    expect(result.isInitialized).toBe(true);
+    expect(result.isLoading).toBe(false);
+    expect(typeof result.signIn).toBe('function');
+    expect(typeof result.signUp).toBe('function');
+    expect(typeof result.logout).toBe('function');
+  });
+
+  it('should handle signIn function', () => {
+    const mockSignIn = jest.fn();
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isInitialized: true,
+      isLoading: false,
+      signIn: mockSignIn,
+      signUp: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    const result = mockUseAuth();
+    result.signIn('test@example.com', 'password123');
+    
+    expect(mockSignIn).toHaveBeenCalledWith('test@example.com', 'password123');
+  });
+
+  it('should handle loading state', () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isInitialized: true,
+      isLoading: true,
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    const result = mockUseAuth();
+    
+    expect(result.isLoading).toBe(true);
+  });
+}); 

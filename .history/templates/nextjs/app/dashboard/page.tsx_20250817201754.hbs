@@ -1,0 +1,209 @@
+{{#ifEquals nextjs.ui "mui"}}
+import { Container, Typography, Box, Card, CardContent, Grid, Avatar, Chip, Button } from '@mui/material'
+import Link from 'next/link'
+{{/ifEquals}}
+
+{{#ifEquals nextjs.ui "shadcn"}}
+import Link from 'next/link'
+{{/ifEquals}}
+
+export default function DashboardPage() {
+  {{#ifEquals nextjs.ui "mui"}}
+  return (
+    <Container maxWidth="lg">
+      <Box className="py-8">
+        {/* Header */}
+        <Box className="flex justify-between items-center mb-8">
+          <Typography variant="h3" component="h1">
+            Dashboard
+          </Typography>
+          <Button 
+            component={Link}
+            href="/"
+            variant="outlined"
+          >
+            Retour à l'accueil
+          </Button>
+        </Box>
+
+        {/* User Info */}
+        <Card className="mb-6">
+          <CardContent>
+            <Box className="flex items-center space-x-4">
+              <Avatar className="w-16 h-16">
+                U
+              </Avatar>
+              <Box>
+                <Typography variant="h5">
+                  Utilisateur
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  utilisateur@example.com
+                </Typography>
+                <Chip label="Connecté" color="success" size="small" className="mt-2" />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Stats Grid */}
+        <Grid container spacing={3} className="mb-8">
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box className="text-center">
+                  <Typography variant="h4" color="primary">
+                    1250
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Utilisateurs totaux
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box className="text-center">
+                  <Typography variant="h4" color="secondary">
+                    8
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Projets actifs
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box className="text-center">
+                  <Typography variant="h4" color="success">
+                    23
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Activités récentes
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Actions rapides
+            </Typography>
+            <Box className="flex space-x-2">
+              <Button variant="contained" color="primary">
+                Nouveau projet
+              </Button>
+              <Button variant="outlined">
+                Voir les rapports
+              </Button>
+              <Button variant="outlined">
+                Paramètres
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Container>
+  );
+  {{/ifEquals}}
+  
+  {{#ifEquals nextjs.ui "shadcn"}}
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Dashboard
+            </h1>
+            <Link 
+              href="/"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Retour à l'accueil
+            </Link>
+          </div>
+
+          {/* User Info */}
+          <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
+            <div className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-medium text-xl">U</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Utilisateur</h2>
+                  <p className="text-gray-600">utilisateur@example.com</p>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
+                    Connecté
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">1250</div>
+                  <p className="text-gray-600">Utilisateurs totaux</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">8</div>
+                  <p className="text-gray-600">Projets actifs</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">23</div>
+                  <p className="text-gray-600">Activités récentes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
+              <div className="flex space-x-2">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  Nouveau projet
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                  Voir les rapports
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                  Paramètres
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  {{/ifEquals}}
+} 

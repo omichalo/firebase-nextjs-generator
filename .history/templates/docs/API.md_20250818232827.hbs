@@ -1,0 +1,112 @@
+# API Documentation - {{project.name}}
+
+## 🔐 Authentication
+
+### POST /api/auth/login
+Authentifie un utilisateur avec email et mot de passe.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "user": {
+    "uid": "user123",
+    "email": "user@example.com",
+    "displayName": "John Doe"
+  },
+  "token": "jwt_token_here"
+}
+```
+
+### POST /api/auth/logout
+Déconnecte l'utilisateur actuel.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User logged out successfully"
+}
+```
+
+## 📊 Firestore Operations
+
+### GET /api/firestore/collection/{collectionName}
+Récupère tous les documents d'une collection.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "doc1",
+      "name": "Document 1",
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### POST /api/firestore/collection/{collectionName}
+Crée un nouveau document dans une collection.
+
+**Request Body:**
+```json
+{
+  "name": "New Document",
+  "description": "Document description"
+}
+```
+
+## 🗄️ Storage Operations
+
+### POST /api/storage/upload
+Upload un fichier vers Firebase Storage.
+
+**Request Body:**
+```multipart/form-data
+file: [binary file data]
+path: "uploads/images/"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "url": "https://storage.googleapis.com/bucket/path/file.jpg",
+  "path": "uploads/images/file.jpg"
+}
+```
+
+## 🔧 Error Handling
+
+Toutes les API retournent des erreurs dans ce format :
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTH_FAILED",
+    "message": "Authentication failed",
+    "details": "Invalid email or password"
+  }
+}
+```
+
+## 📝 Status Codes
+
+- `200` - Succès
+- `400` - Erreur de validation
+- `401` - Non authentifié
+- `403` - Non autorisé
+- `404` - Ressource non trouvée
+- `500` - Erreur serveur interne 

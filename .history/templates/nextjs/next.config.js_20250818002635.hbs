@@ -1,0 +1,39 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  {{#if nextjs.features.pwa}}
+  // Configuration PWA
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
+  {{/if}}
+  // Configuration des images
+  images: {
+    domains: ['firebasestorage.googleapis.com'],
+  },
+  // Configuration TypeScript
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // Configuration ESLint
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  {{#if nextjs.features.sentry}}
+  // Configuration Sentry
+  sentry: {
+    hideSourceMaps: true,
+  },
+  {{/if}}
+};
+
+module.exports = nextConfig; 
